@@ -814,6 +814,7 @@ function montarListaUnica() {
     });
   });
   console.log("Tentando buscar em:", pessoasFlat);
+  window.pessoasFlat = pessoasFlat; // expõe globalmente
 }
 
 // 🚀 START
@@ -1168,6 +1169,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.warn("⚠️ Falha ao carregar HIERARQUIA:", err);
   }
 
+  // Carrega mapa de líderes (nome e função por sigla)
+  try {
+    const lmRef = doc(db, "aia_config", "lideres_map");
+    const lmSnap = await getDoc(lmRef);
+    if (lmSnap.exists() && lmSnap.data() && lmSnap.data().lideres) {
+      window.LIDERES_MAP = lmSnap.data().lideres;
+      console.log("✔ LIDERES_MAP carregado:", Object.keys(window.LIDERES_MAP).length, "líderes");
+    }
+  } catch (err) {
+    console.warn("⚠️ Falha ao carregar lideres_map:", err);
+  }
+
+  // Complementa LIDERES_MAP com dados dos registros LIDER já salvos
+  try {
+    if(!window.LIDERES_MAP) window.LIDERES_MAP = {};
+    (window.LIDER||[]).forEach(function(r){
+      var sig = (r.sigla||'').toUpperCase();
+      if(sig && r.avaliador){
+        var existing = window.LIDERES_MAP[sig] || {};
+        var nome = existing.nome || r.avaliador || '';
+        // lider_func é gravado a partir desta versão; fallback: pessoasFlat
+        var func = existing.func || r.lider_func || '';
+        if(!func && window.pessoasFlat){
+          var pf = window.pessoasFlat.find(function(p){ return (p.sigla||'').toUpperCase()===sig; });
+          if(pf) func = pf.func||'';
+        }
+        window.LIDERES_MAP[sig] = {nome: nome, func: func};
+      }
+    });
+  } catch(e){}
+
   // Popula os campos após carregar tudo
   setupNomeList('u_nome', 'lista_u_nome');
 
@@ -1294,13 +1326,13 @@ window.mc = window.mc || {}; // evita erros caso algum gráfico use 'mc' sem def
 <h3>Identificação</h3>
 <div class="row" style="margin-top:8px">
 
-<input class="input" id="u_nome" list="lista_u_nome" placeholder="NOME"/>
+<input class="input" id="u_nome" list="lista_u_nome" placeholder="NOME" autocomplete="off"/>
   <datalist id="lista_u_nome"></datalist>
 
-<input class="input" id="u_sigla" placeholder="SIGLA"/>
-<input class="input" id="u_senha" type="password" placeholder="Senha do líder" style="display:none"/><select class="select" id="u_func"></select>
+<input class="input" id="u_sigla" placeholder="SIGLA" autocomplete="off"/>
+<input class="input" id="u_senha" type="password" placeholder="Senha do líder" style="display:none" autocomplete="new-password"/><select class="select" id="u_func" autocomplete="off"></select>
 
-<input class="select" list="l_equipe" id="u_equipe" name="equipe" placeholder="Selecione a equipe…" />
+<input class="select" list="l_equipe" id="u_equipe" name="equipe" placeholder="Selecione a equipe…" autocomplete="off"/>
 
 <datalist class="select" id="l_equipe">
     <option value="Administrativo">Administrativo</option>
@@ -1621,7 +1653,7 @@ window.mc = window.mc || {}; // evita erros caso algum gráfico use 'mc' sem def
 <input class="input" id="autoSigla" placeholder="Sua sigla"/>
 <select class="select" id="autoFunc"></select>
 </div>
-<div class="progress-label" id="autoCompProgress" style="margin-top:6px"></div><div class="progress-bar-wrap" id="autoCompBar" style="margin-bottom:8px"><div class="progress-bar" style="width:0%"></div></div><div id="autoComp" style="margin-top:8px"></div>
+<div id="autoComp" style="margin-top:8px"></div>
 <textarea class="input" id="autoObs" placeholder="Observações (opcional)" style="margin-top:8px"></textarea>
 <div style="margin-top:8px"><button class="btn" id="btnSaveAuto">Salvar AUTO</button></div>
 </div>
@@ -1632,7 +1664,7 @@ window.mc = window.mc || {}; // evita erros caso algum gráfico use 'mc' sem def
 <select class="select" id="l_sel"></select>
 <select class="select" id="l_func"></select>
 </div>
-<div class="progress-label" id="liderCompProgress" style="margin-top:6px"></div><div class="progress-bar-wrap" id="liderCompBar" style="margin-bottom:8px"><div class="progress-bar" style="width:0%"></div></div><div id="liderComp" style="margin-top:8px"></div>
+<div id="liderComp" style="margin-top:8px"></div>
 <h4 style="margin:14px 0 6px 0">Potencial (5 itens)</h4>
 <div id="liderPot"></div>
 <textarea class="input" id="liderObs" placeholder="Feedback (opcional)" style="margin-top:8px"></textarea>
@@ -1655,10 +1687,8 @@ window.mc = window.mc || {}; // evita erros caso algum gráfico use 'mc' sem def
 <h3>Consolidar &amp; Nine Box</h3>
 <button class="btn secondary" id="btnToggleTeam">Ver equipe</button>
 <div class="row" style="margin-bottom:8px">
-<label class="row" style="gap:6px;align-items:center">
-<input id="onlyTeam" type="checkbox"/>
-<span class="small">Somente minha equipe</span>
-</label>
+<!-- filtro por equipe removido: consolidado sempre mostra apenas liderados do líder logado -->
+<input id="onlyTeam" type="checkbox" style="display:none" checked/>
 </div>
 <div class="row" style="margin-top:8px;margin-bottom:8px">
 <select class="select" id="selPessoa" title="Relatório individual por colaborador"></select>
@@ -1843,7 +1873,7 @@ function findSiglaByNome(nome){
           function prop(cat){ return {at:'Entrega Jurídica', pf:'Geração de Negócios', su:'EXxperiência do Cliente'}[cat] || cat; }
           var _state = {
             colaborador:'', colaborador_sigla:'', periodo:'',
-            Entrega jurídica:[], Geração de negócios:[], Experiência do cliente:[],
+            'Entrega jurídica':[], 'Geração de negócios':[], 'Experiência do cliente':[],
             acomp:[], conclusao:{data:'',resultado:''}
           };
 
@@ -2276,7 +2306,7 @@ function wire(){
               
               // ATENÇÃO: Apenas inicializa o _state para renderizar os campos
               window._state = { colaborador:nome, colaborador_sigla: sigla, periodo:'',
-                         entrega jurídica:[], geração de negócio:[], experiência do cliente:[],
+                         'entrega jurídica':[], 'geração de negócio':[], 'experiência do cliente':[],
                          acomp:[], conclusao:{data:'',resultado:''} };
               
               document.getElementById('cons_pdi_colab').value = nome + (sigla ? ' ('+sigla+')' : '');
@@ -2685,16 +2715,60 @@ let QBANK = Array.isArray(qbRaw) && qbRaw.length
       setTimeout(updateSenhaVisibility, 300);
     }
   })();
-  // Pre-fill from last saved user
-  try{
-    var lastU = JSON.parse(localStorage.getItem('up9_last_user')||'null');
-    if(lastU){
-      var uNome = document.querySelector('#u_nome'); if(uNome) uNome.value = lastU.nome||'';
-      var uSigla = document.querySelector('#u_sigla'); if(uSigla) uSigla.value = lastU.sigla||'';
-      var uFunc = document.querySelector('#u_func'); if(uFunc && lastU.func) uFunc.value = lastU.func;
-      var uEquipe = document.querySelector('#u_equipe'); if(uEquipe && lastU.equipe) uEquipe.value = lastU.equipe;
+  // Auto-preenche sigla, função e equipe ao selecionar um nome da lista
+  (function(){
+    var nomeInput = document.querySelector('#u_nome');
+    if(!nomeInput) return;
+    function normStr(s){ return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/gi,'').trim().toLowerCase(); }
+    function autoFill(){
+      var nome = nomeInput.value.trim();
+      if(!nome) return;
+      var nomeNorm = normStr(nome);
+      // Busca na HIERARQUIA: chave = nome da equipe, valor = array de membros
+      var found = null, foundEquipe = '';
+      var H = window.HIERARQUIA || {};
+      for(var eq in H){
+        var membros = H[eq];
+        if(!Array.isArray(membros)) continue;
+        var m = membros.find(function(p){ return p && p.nome && normStr(p.nome) === nomeNorm; });
+        if(m){ found = m; foundEquipe = eq; break; }
+      }
+      // fallback: pessoasFlat
+      if(!found && window.pessoasFlat){
+        found = window.pessoasFlat.find(function(p){ return p && p.nome && normStr(p.nome) === nomeNorm; });
+        if(found) foundEquipe = found.equipe || '';
+      }
+      if(!found){
+        console.warn('[autoFill] não encontrado:', nome);
+        console.warn('[autoFill] nomes na HIERARQUIA:', Object.values(H).flat().map(function(p){ return p && p.nome; }).filter(Boolean));
+        return;
+      }
+      console.log('[autoFill] encontrado:', JSON.stringify(found), '| equipe:', foundEquipe);
+      var siglaEl  = document.querySelector('#u_sigla');
+      var funcEl   = document.querySelector('#u_func');
+      var equipeEl = document.querySelector('#u_equipe');
+      if(siglaEl)  siglaEl.value  = (found.sigla||'').toUpperCase();
+      if(funcEl && found.func){
+        var funcNorm = normStr(found.func);
+        var matched = Array.from(funcEl.options).find(function(opt){
+          return normStr(opt.value) === funcNorm || normStr(opt.text) === funcNorm;
+        });
+        if(matched) funcEl.value = matched.value;
+        else funcEl.value = found.func; // tentativa direta como fallback
+      }
+      if(equipeEl && foundEquipe) equipeEl.value = foundEquipe;
     }
-  }catch(_){}
+    nomeInput.addEventListener('change', autoFill);
+    nomeInput.addEventListener('input',  function(){ setTimeout(autoFill, 150); });
+    // Re-tenta se HIERARQUIA ainda não carregou
+    var _autoFillRetry = null;
+    nomeInput.addEventListener('change', function(){
+      if(!window.HIERARQUIA || !Object.keys(window.HIERARQUIA).length){
+        clearTimeout(_autoFillRetry);
+        _autoFillRetry = setTimeout(autoFill, 1500);
+      }
+    });
+  })();
   // Identificação
   document.querySelector('#btnIdent').onclick=async()=>{
     USER={
@@ -2716,6 +2790,20 @@ let QBANK = Array.isArray(qbRaw) && qbRaw.length
 
     save('nb_user',USER);
     window.USER = USER;
+    // Registra este usuário no LIDERES_MAP e persiste no Firestore
+    try{
+      if(!window.LIDERES_MAP) window.LIDERES_MAP = {};
+      var mySig = (USER.sigla||'').toUpperCase();
+      if(mySig && USER.nome && USER.func){
+        window.LIDERES_MAP[mySig] = {nome: USER.nome, func: USER.func};
+        // Persiste no Firestore para que liderados vejam mesmo em outras sessões
+        if(window.db && window.doc && window.setDoc){
+          var _upd = {}; _upd['lideres.'+mySig] = {nome: USER.nome, func: USER.func};
+          window.setDoc(window.doc(window.db,'aia_config','lideres_map'), _upd, {merge:true})
+            .catch(function(e){ console.warn('lideres_map update fail:', e); });
+        }
+      }
+    }catch(_){}
     renderHome();
     try{ if (typeof window.refreshSelPessoa === 'function') window.attachAIHandlers && window.attachAIHandlers();
       window.refreshSelPessoa(); }catch(_){ }
@@ -2926,16 +3014,21 @@ document.querySelector('#btnAdmin').onclick = () => {
     if(!NEED.every(k=>idx(k)>=0)) throw new Error('Cabeçalho incorreto.');
 
     const nova = {};
+    const lideresMap = {}; // mapa sigla -> {nome, func} dos líderes
     for(let r=1;r<rows.length;r++){
       const c = rows[r]; if(!c||!c.length) continue;
       const lid = (String(c[idx('lider_sigla')]||'').trim().toUpperCase());
+      const lidNome = String(c[idx('lider_nome')]||'').trim();
+      const lidFunc = String(c[idx('lider_func')]||'').trim();
+      if(lid && lidNome && !lideresMap[lid]) lideresMap[lid] = {nome: lidNome, func: lidFunc};
       const ldNome = String(c[idx('liderado_nome')]||'').trim();
       const ldSig  = String(c[idx('liderado_sigla')]||'').trim().toUpperCase();
       const ldFunc = String(c[idx('liderado_func')]||'').trim();
       if(!lid) continue; 
       if(!(ldNome||ldSig||ldFunc)) continue;
 
-      (nova[lid] = nova[lid] || []).push({
+      if(!nova[lid]){ nova[lid] = []; nova[lid]._liderNome = lidNome; nova[lid]._liderFunc = lidFunc; }
+      nova[lid].push({
         nome: ldNome,
         sigla: ldSig,
         func: ldFunc,
@@ -3001,6 +3094,13 @@ document.querySelector('#btnAdmin').onclick = () => {
       }
     }
 
+    // Salva mapa de líderes no Firestore para uso futuro
+    try{
+      if(window.db && window.doc && window.setDoc){
+        await window.setDoc(window.doc(window.db,'aia_config','lideres_map'), {lideres: lideresMap}, {merge:true});
+        window.LIDERES_MAP = lideresMap;
+      }
+    }catch(e){ console.warn('Falha ao salvar lideres_map:', e); }
     const res = await trySaveHierarquiaToFirestore(HIERARQUIA);
     if (!res.ok) alert("Equipes importadas localmente, mas NÃO salvas no Firestore. Veja console.");
     else alert("Equipes importadas e salvas no Firestore! ✔");
@@ -3136,13 +3236,48 @@ function buildComp(container, func, prefix){
   }
 
   function buildAuto(){
-    document.querySelector('#autoNome').value=USER.nome; document.querySelector('#autoSigla').value=USER.sigla;
-    fillFuncoes(document.querySelector('#autoFunc')); document.querySelector('#autoFunc').value=USER.func;
-    buildComp('#autoComp',document.querySelector('#autoFunc').value,'a');
-    var aBar=document.getElementById('autoCompBar'), aLbl=document.getElementById('autoCompProgress');
-    if(aBar) aBar.querySelector('.progress-bar').style.width='0%';
-    if(aLbl) aLbl.textContent='0 competências preenchidas';
-    document.querySelector('#autoFunc').onchange=function(){ buildComp('#autoComp',document.querySelector('#autoFunc').value,'a'); if(aBar) aBar.querySelector('.progress-bar').style.width='0%'; if(aLbl) aLbl.textContent='0 competências preenchidas'; };
+    // Preenche identificação do usuário
+    document.querySelector('#autoNome').value = USER.nome;
+    document.querySelector('#autoSigla').value = USER.sigla;
+    fillFuncoes(document.querySelector('#autoFunc'));
+    document.querySelector('#autoFunc').value = USER.func;
+
+    var aBar = document.getElementById('autoCompBar');
+    var aLbl = document.getElementById('autoCompProgress');
+
+    // Captura respostas já preenchidas antes de reconstruir
+    var savedRatings = {};
+    document.querySelectorAll('#autoComp .rating-input').forEach(function(inp){
+      if(+inp.value > 0) savedRatings[inp.id] = inp.value;
+    });
+
+    // Constrói as competências
+    buildComp('#autoComp', USER.func, 'a');
+
+    // Restaura respostas salvas
+    Object.keys(savedRatings).forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.value = savedRatings[id];
+    });
+
+    // Atualiza barra de progresso
+    var allInputs = document.querySelectorAll('#autoComp .rating-input');
+    var filled = 0;
+    allInputs.forEach(function(inp){ if(+inp.value > 0) filled++; });
+    var total = allInputs.length;
+    if(aBar) aBar.querySelector('.progress-bar').style.width = (total ? Math.round(filled/total*100) : 0)+'%';
+    if(aLbl) aLbl.textContent = filled + ' de ' + total + ' competências preenchidas';
+
+    // Ao trocar função manualmente, reconstrói
+    document.querySelector('#autoFunc').onchange = function(){
+      savedRatings = {};
+      buildComp('#autoComp', document.querySelector('#autoFunc').value, 'a');
+      if(aBar) aBar.querySelector('.progress-bar').style.width = '0%';
+      if(aLbl) aLbl.textContent = '0 competências preenchidas';
+    };
+
+    // Libera o botão Salvar diretamente
+    if(typeof window.checkAuto === 'function') window.checkAuto();
   }
 
   function compCount(func){
@@ -3183,17 +3318,58 @@ function buildComp(container, func, prefix){
     window.showToast && window.showToast('Autoavaliação salva!', 'success');
   };
 
+  function _populateLiderSel(){
+    var sig = (USER && USER.sigla||'').toUpperCase();
+    // Tenta HIERARQUIA local, depois window.HIERARQUIA (atualizado pelo Firestore)
+    var hierRef = (window.HIERARQUIA && Object.keys(window.HIERARQUIA).length) ? window.HIERARQUIA : HIERARQUIA;
+    var lista = hierRef[sig] || [];
+    var sel = document.querySelector('#l_sel');
+    if(!sel) return;
+    var prevVal = sel.value;
+    sel.innerHTML='<option value="">Selecione o liderado…</option>';
+    lista.forEach(function(p){ var o=document.createElement('option'); o.value=p.nome; o.textContent=p.nome; sel.appendChild(o); });
+    // Restaura seleção anterior se ainda existir
+    if(prevVal && lista.some(function(p){ return p.nome===prevVal; })) sel.value = prevVal;
+    var hint = document.querySelector('#l_hint');
+    if(hint) hint.textContent = lista.length ? 'Você tem '+lista.length+' liderado(s).' : 'Sem liderados na hierarquia importada. Verifique se sua sigla ('+sig+') está correta e aguarde o carregamento.';
+    // Se ainda vazio, tenta novamente em 1.5s (Firestore pode não ter chegado)
+    if(!lista.length && !sel.__liderRetried){
+      sel.__liderRetried = true;
+      setTimeout(function(){
+        var h2 = (window.HIERARQUIA && Object.keys(window.HIERARQUIA).length) ? window.HIERARQUIA : HIERARQUIA;
+        var l2 = h2[sig] || [];
+        if(l2.length){
+          sel.innerHTML='<option value="">Selecione o liderado…</option>';
+          l2.forEach(function(p){ var o=document.createElement('option'); o.value=p.nome; o.textContent=p.nome; sel.appendChild(o); });
+          if(hint) hint.textContent='Você tem '+l2.length+' liderado(s).';
+        }
+        sel.__liderRetried = false;
+      }, 1500);
+    }
+    return lista;
+  }
+
   function buildLider(){
     fillFuncoes(document.querySelector('#l_func'));
     // Render completion status
     setTimeout(function(){ window.renderCompletionStatus && window.renderCompletionStatus('lider-completion-status'); }, 100);
-    const lista=HIERARQUIA[(USER.sigla||'').toUpperCase()]||[];
-    const sel=document.querySelector('#l_sel'); sel.innerHTML='<option value="">Selecione o liderado…</option>';
-    lista.forEach(p=>{const o=document.createElement('option'); o.value=p.nome; o.textContent=`${p.nome}`; sel.appendChild(o);});
-    document.querySelector('#l_hint').textContent= lista.length ? `Você tem ${lista.length} liderado(s).` : 'Sem liderados na hierarquia importada.';
+    var lista = _populateLiderSel();
+    const sel=document.querySelector('#l_sel');
     document.querySelector('#l_func').value=USER.func; buildComp('#liderComp',document.querySelector('#l_func').value,'l');
-    sel.onchange=()=>{ const f=lista.find(x=>x.nome===sel.value); if(f){ document.querySelector('#l_func').value=f.func||document.querySelector('#l_func').value; } const rec=(LIDER||[]).find(x=>x.nome===sel.value && x.sigla===USER.sigla); if(rec){ document.querySelector('#l_func').value=rec.func||document.querySelector('#l_func').value; } buildComp('#liderComp',document.querySelector('#l_func').value,'l'); const cnt=compCount(document.querySelector('#l_func').value); if(rec && Array.isArray(rec.comp)){ for(let i=0;i<cnt;i++){ const el=document.getElementById(`l_${i}`); if(el){ el.value = rec.comp[i] ?? el.value; const out=document.getElementById(`l_${i}_v`); if(out) out.textContent = el.value; } } } if(rec && Array.isArray(rec.pot)){ for(let i=0;i<5;i++){ const el=document.getElementById(`lp_${i}`); if(el){ el.value = rec.pot[i] ?? el.value; const out=document.getElementById(`lp_${i}_v`); if(out) out.textContent = el.value; } } } };
+    sel.onchange=()=>{
+      // Sempre busca na hierarquia mais atual (pode ter chegado do Firestore depois do buildLider)
+      var hierNow = (window.HIERARQUIA && Object.keys(window.HIERARQUIA).length) ? window.HIERARQUIA : HIERARQUIA;
+      var listaNow = hierNow[(USER.sigla||'').toUpperCase()] || [];
+      const f=listaNow.find(x=>x.nome===sel.value); if(f){ document.querySelector('#l_func').value=f.func||document.querySelector('#l_func').value; }
+      const rec=(LIDER||[]).find(x=>x.nome===sel.value && x.sigla===USER.sigla); if(rec){ document.querySelector('#l_func').value=rec.func||document.querySelector('#l_func').value; }
+      buildComp('#liderComp',document.querySelector('#l_func').value,'l');
+      const cnt=compCount(document.querySelector('#l_func').value);
+      if(rec && Array.isArray(rec.comp)){ for(let i=0;i<cnt;i++){ const el=document.getElementById(`l_${i}`); if(el){ el.value = rec.comp[i] ?? el.value; const out=document.getElementById(`l_${i}_v`); if(out) out.textContent = el.value; } } }
+      if(rec && Array.isArray(rec.pot)){ for(let i=0;i<5;i++){ const el=document.getElementById(`lp_${i}`); if(el){ el.value = rec.pot[i] ?? el.value; const out=document.getElementById(`lp_${i}_v`); if(out) out.textContent = el.value; } } }
+    };
     document.querySelector('#l_func').onchange=()=>buildComp('#liderComp',document.querySelector('#l_func').value,'l');
+    // Habilita botão se já tem liderado selecionado
+    if(typeof window.checkLider === 'function') window.checkLider();
     // Potencial
     const potDiv=document.querySelector('#liderPot'); potDiv.innerHTML='';
     ['Conduta','Compreensão Interpessoal','Capacidade de Progressão','Maturidade Emocional','Flexibilidade / Adaptabilidade'].forEach((p,i)=>{
@@ -3247,7 +3423,7 @@ function addAIHistory(nome, registro){
     const sub     = allSubs.find(s => s.nome === nome);
     const avaliado_sigla = (sub && sub.sigla) ? sub.sigla : '';
     LIDER = safeArray(LIDER).filter(x=>!(x.nome===nome && x.sigla===USER.sigla));
-    const novoRegistro = {ts,avaliador:USER.nome,sigla:USER.sigla,
+    const novoRegistro = {ts,avaliador:USER.nome,sigla:USER.sigla,lider_func:USER.func,
       avaliado_sigla, nome,func,comp:notas,pot,obs:document.querySelector('#liderObs').value,d_lider,p_lider};
     LIDER.push(novoRegistro);
     try{ window.LIDER = LIDER; }catch(_e){}
@@ -3277,9 +3453,129 @@ function addAIHistory(nome, registro){
   };
 
   function buildEquipe(){
-    fillFuncoes(document.querySelector('#e_func')); document.querySelector('#e_func').value=USER.func;
-    buildComp('#equipeComp',document.querySelector('#e_func').value,'e');
-    document.querySelector('#e_func').onchange=()=>buildComp('#equipeComp',document.querySelector('#e_func').value,'e');
+    fillFuncoes(document.querySelector('#e_func'));
+
+    var hierRef = (window.HIERARQUIA && Object.keys(window.HIERARQUIA).length) ? window.HIERARQUIA : HIERARQUIA;
+    var datalistEl = document.getElementById('lista_e_nome');
+    var eNomeInputEl = document.querySelector('#e_nome');
+    var eFuncEl = document.querySelector('#e_func');
+
+    var liderAutoNome = '';
+    var liderAutoFunc = '';
+    var liderAutoSig  = '';
+
+    // Percorre todas as equipes e encontra qual líder tem o usuário como liderado
+    Object.keys(hierRef || {}).forEach(function(sigLider){
+      var membros = hierRef[sigLider] || [];
+      var euEstouNessaEquipe = membros.some(function(m){
+        return (m.nome||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase()
+             === (USER.nome||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+      });
+      if(!euEstouNessaEquipe) return;
+      liderAutoSig = sigLider;
+    });
+
+    // Busca o nome e função do líder — nome e func são buscados independentemente
+    if(liderAutoSig){
+      var hierAll = window.HIERARQUIA || hierRef || {};
+
+      // NOME: tenta LIDERES_MAP, depois varre hierarquia inteira
+      if(window.LIDERES_MAP && window.LIDERES_MAP[liderAutoSig] && window.LIDERES_MAP[liderAutoSig].nome){
+        liderAutoNome = window.LIDERES_MAP[liderAutoSig].nome;
+      }
+      if(!liderAutoNome && window.pessoasFlat){
+        var pf = window.pessoasFlat.find(function(p){ return (p.sigla||'').toUpperCase()===liderAutoSig; });
+        if(pf) liderAutoNome = pf.nome||'';
+      }
+      if(!liderAutoNome){
+        Object.values(hierAll).forEach(function(arr){
+          (arr||[]).forEach(function(p){
+            if((p.sigla||'').toUpperCase()===liderAutoSig && !liderAutoNome) liderAutoNome = p.nome||'';
+          });
+        });
+      }
+      if(!liderAutoNome) liderAutoNome = liderAutoSig; // último recurso: sigla
+
+      // FUNÇÃO: busca independente — não depende de ter achado o nome
+      // a) LIDERES_MAP com func preenchido
+      if(window.LIDERES_MAP && window.LIDERES_MAP[liderAutoSig] && window.LIDERES_MAP[liderAutoSig].func){
+        liderAutoFunc = window.LIDERES_MAP[liderAutoSig].func;
+      }
+      // b) pessoasFlat
+      if(!liderAutoFunc && window.pessoasFlat){
+        var pf2 = window.pessoasFlat.find(function(p){ return (p.sigla||'').toUpperCase()===liderAutoSig; });
+        if(pf2) liderAutoFunc = pf2.func||'';
+      }
+      // c) O líder aparece como membro em outra equipe na hierarquia
+      if(!liderAutoFunc){
+        Object.values(hierAll).forEach(function(arr){
+          (arr||[]).forEach(function(p){
+            if((p.sigla||'').toUpperCase()===liderAutoSig && p.func && !liderAutoFunc) liderAutoFunc = p.func;
+          });
+        });
+      }
+      // d) Registros de avaliação do LIDER: o líder avaliou alguém, pega a func do lider_func salvo
+      if(!liderAutoFunc){
+        (window.LIDER||[]).forEach(function(r){
+          if((r.sigla||'').toUpperCase()===liderAutoSig && r.lider_func && !liderAutoFunc) liderAutoFunc = r.lider_func;
+        });
+      }
+    }
+
+    // Popula o datalist com todos os líderes (chaves da hierarquia) que tenham nome resolvido
+    if(datalistEl){
+      datalistEl.innerHTML = '';
+      Object.keys(hierRef || {}).forEach(function(sig){
+        var nome = '';
+        if(window.pessoasFlat){
+          var pf = window.pessoasFlat.find(function(p){ return (p.sigla||'').toUpperCase()===sig; });
+          if(pf) nome = pf.nome;
+        }
+        if(!nome){
+          Object.values(hierRef).forEach(function(arr){
+            (arr||[]).forEach(function(p){
+              if((p.sigla||'').toUpperCase()===sig && !nome) nome = p.nome;
+            });
+          });
+        }
+        if(!nome) nome = sig;
+        var opt = document.createElement('option'); opt.value = nome; datalistEl.appendChild(opt);
+      });
+    }
+
+    // Preenche automaticamente nome e função do líder
+    if(eNomeInputEl && liderAutoNome){
+      eNomeInputEl.value = liderAutoNome;
+    }
+    if(eFuncEl && liderAutoFunc){
+      eFuncEl.value = liderAutoFunc;
+    }
+    // Seta a função no select
+    if(eFuncEl){
+      if(liderAutoFunc){
+        eFuncEl.value = liderAutoFunc;
+      } else {
+        eFuncEl.selectedIndex = 0; // "Selecione a função…"
+      }
+    }
+
+    // Carrega perguntas se já tem função; senão mostra aviso
+    var equipeCompEl = document.getElementById('equipeComp');
+    if(liderAutoFunc){
+      buildComp('#equipeComp', liderAutoFunc, 'e');
+    } else if(equipeCompEl){
+      equipeCompEl.innerHTML = '<div class="muted" style="margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:4px;">'
+        + '⚠️ Selecione a função do líder acima para carregar as perguntas.</div>';
+    }
+
+    // Ao selecionar função manualmente, carrega perguntas
+    if(eFuncEl) eFuncEl.onchange = function(){
+      buildComp('#equipeComp', eFuncEl.value, 'e');
+      if(typeof window.checkEquipe === 'function') window.checkEquipe();
+    };
+
+    // Checa se pode habilitar o botão
+    if(typeof window.checkEquipe === 'function') window.checkEquipe();
   }
   document.querySelector('#btnSaveEquipe').onclick=()=>{
     const nome=document.querySelector('#e_nome').value.trim(); if(!nome) return alert('Informe o nome do avaliado (seu líder).');
@@ -3405,12 +3701,9 @@ function addAIHistory(nome, registro){
     });
 const applyFilters=(list)=>{ try{
       const v=document.querySelector('#flt').value.toLowerCase();
-      const onlyTeam=document.querySelector('#onlyTeam').checked;
-      let base=list;
-      if(onlyTeam){
-        const my=(HIERARQUIA[(USER.sigla||'').toUpperCase()]||[]).map(x=>x.nome);
-        base=base.filter(r=>my.includes(r.nome));
-      }
+      // Sempre filtra pelos liderados do líder logado
+      const myTeam=(HIERARQUIA[(USER.sigla||'').toUpperCase()]||[]).map(x=>x.nome);
+      let base = myTeam.length ? list.filter(r=>myTeam.includes(r.nome)) : list;
       return base.filter(r=>(`${r.nome} ${r.sigla} ${r.func}`).toLowerCase().includes(v));
     }catch(e){}
       const vEl=document.querySelector('#flt'); const tEl=document.querySelector('#onlyTeam');
@@ -4525,14 +4818,17 @@ function markCanceled(nome, tipo){
     var ok = (byId('autoNome')?.value.trim() && byId('autoSigla')?.value.trim() && byId('autoFunc')?.value);
     hideBtn('btnSaveAuto', !ok);
   }
+  window.checkAuto = checkAuto;
   function checkLider(){
     var ok = (byId('l_sel')?.value && byId('l_func')?.value);
     hideBtn('btnSaveLider', !ok);
   }
+  window.checkLider = checkLider;
   function checkEquipe(){
     var ok = (byId('e_nome')?.value.trim() && byId('e_func')?.value);
     hideBtn('btnSaveEquipe', !ok);
   }
+  window.checkEquipe = checkEquipe;
 
   // Reset básico ao iniciar (sem apagar dados salvos; só não auto-carrega nada)
   window.addEventListener('DOMContentLoaded', function(){
@@ -5282,7 +5578,13 @@ document.addEventListener('click', function(e){
     Object.keys(h||{}).forEach(liderSig=>{
       (h[liderSig]||[]).forEach(p=>{
         if(!p) return;
-        colabs.push({ nome:p.nome||'', sigla:p.sigla||'', func:p.func||'', equipe:p.equipe||p.sigla||'', nivel:p.nivel||null, step:p.step||null });
+        // Resolve nome do líder para coluna Equipe
+        var _lNome = '';
+        if(window.LIDERES_MAP && window.LIDERES_MAP[liderSig]) _lNome = window.LIDERES_MAP[liderSig].nome||'';
+        if(!_lNome && window.pessoasFlat){ var _pf=(window.pessoasFlat||[]).find(function(x){return (x.sigla||'').toUpperCase()===liderSig;}); if(_pf) _lNome=_pf.nome||''; }
+        if(!_lNome){ Object.values(h||{}).forEach(function(arr){ (arr||[]).forEach(function(x){ if((x.sigla||'').toUpperCase()===liderSig&&!_lNome) _lNome=x.nome||''; }); }); }
+        var _equipe = p.equipe || _lNome || liderSig || '';
+        colabs.push({ nome:p.nome||'', sigla:p.sigla||'', func:p.func||'', equipe:_equipe, liderSig:liderSig, nivel:p.nivel||null, step:p.step||null });
       });
     });
     const seen = new Set();
@@ -5905,9 +6207,10 @@ window.setupAdmAI = function() {
 window.refreshSelPessoa = function(){
   const sel = document.getElementById('selPessoa');
   if (!sel) return;
-  const onlyTeam = document.getElementById('onlyTeam');
   const mySigla = (window.USER && USER.sigla || '').toUpperCase();
-  const data = (onlyTeam && onlyTeam.checked) ? listMyColabs(mySigla) : listAllColabs();
+
+  // Sempre mostra apenas os liderados do líder logado
+  const data = listMyColabs(mySigla);
 
   sel.innerHTML='';
   const opt0=document.createElement('option');
@@ -5918,7 +6221,7 @@ window.refreshSelPessoa = function(){
   data.forEach(c=>{
     const o=document.createElement('option');
     o.value=c.nome;
-    o.textContent=`${c.nome}`;
+    o.textContent=c.nome;
     sel.appendChild(o);
   });
 
