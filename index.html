@@ -339,6 +339,7 @@
     .ai-grid{display:grid;grid-template-columns:1fr auto;gap:14px}
     .tag{font-weight:800;color:#fff;border-radius:8px;padding:4px 8px;display:inline-block}
     .tag.a{background:#1fbf75}.tag.b{background:#A89BB5}.tag.c{background:#3578e5}
+  .tag.d { background: #6B4F9E; color: #fff; }
     .status{font-weight:800}
 
     /* === Capa do relatório (Villemor Amaral) — visual profissional e identificação centralizada === */
@@ -676,7 +677,7 @@ if (typeof window.fallbackRenderPesos !== 'function'){
       const tbody = document.querySelector('#tabPesos tbody');
       if (!tbody) return;
       const data = pesos || window.PESOS_FUNCAO || window.PESOS_PADRAO || {};
-      const rows = Object.keys(data).sort((a,b)=>a.localeCompare(b,'pt-BR')).map(func=>{
+      const rows = Object.keys(data).filter(k=>{ const v=data[k]; return v && typeof v==='object' && ('A' in v||'B' in v||'C' in v); }).sort((a,b)=>a.localeCompare(b,'pt-BR')).map(func=>{
         const item = data[func] || {};
         const checked = item.equipe === true ? 'checked' : '';
         return `<tr>
@@ -684,6 +685,7 @@ if (typeof window.fallbackRenderPesos !== 'function'){
           <td><input class="input" type="number" min="0" step="1" data-func="${func}" data-field="A" value="${Number(item.A||0)}" /></td>
           <td><input class="input" type="number" min="0" step="1" data-func="${func}" data-field="B" value="${Number(item.B||0)}" /></td>
           <td><input class="input" type="number" min="0" step="1" data-func="${func}" data-field="C" value="${Number(item.C||0)}" /></td>
+          <td><input class="input" type="number" min="0" step="1" data-func="${func}" data-field="D" value="${Number(item.D||0)}" /></td>
           <td style="text-align:center"><input type="checkbox" data-func="${func}" data-field="equipe" ${checked} /></td>
         </tr>`;
       }).join('');
@@ -1026,42 +1028,45 @@ document.getElementById("btnExcluirColabGlobal")
 
 
 window.PESOS_PADRAO = {
-    "Gerente Jur. Consultivo II":             {A:9,  B:15, C:12, equipe:true},
-    "Gerente Jurídico II":                    {A:9,  B:15, C:12, equipe:true},
-    "Gerente Jur. Consultivo I":              {A:9,  B:15, C:12, equipe:true},
-    "Gerente Jurídico I":                     {A:9,  B:15, C:12, equipe:true},
+    "Sócio Diretor":                          {A:10, B:10, C:10, D:10, equipe:true},
+    "Sócio II":                              {A:9,  B:15, C:9, D:10,  equipe:true},
+    "Sócio III":                             {A:9,  B:15, C:9, D:10,  equipe:true},
+    "Gerente Jur. Consultivo II":             {A:9,  B:15, C:12, D:10, equipe:true},
+    "Gerente Jurídico II":                    {A:9,  B:15, C:12, D:10, equipe:true},
+    "Gerente Jur. Consultivo I":              {A:9,  B:15, C:12, D:10, equipe:true},
+    "Gerente Jurídico I":                     {A:9,  B:15, C:12, D:10, equipe:true},
 
-    "Advogado Consultivo IV":                 {A:12, B:10, C:12, equipe:false},
-    "Coordenador Jurídico":                   {A:12, B:10, C:12, equipe:true},
-    "Advogado Especialista IV":               {A:12, B:10, C:12, equipe:false},
-    "Advogado Consultivo III":                {A:12, B:10, C:12, equipe:false},
-    "Líder Jurídico II":                      {A:12, B:10, C:12, equipe:true},
+    "Advogado Consultivo IV":                 {A:12, B:10, C:12, D:10, equipe:false},
+    "Coordenador Jurídico":                   {A:12, B:10, C:12, D:10, equipe:true},
+    "Advogado Especialista IV":               {A:12, B:10, C:12, D:10, equipe:false},
+    "Advogado Consultivo III":                {A:12, B:10, C:12, D:10, equipe:false},
+    "Líder Jurídico II":                      {A:12, B:10, C:12, D:10, equipe:true},
 
-    "Líder de Controladoria Jurídica II":     {A:15, B:7,  C:12, equipe:true},
-    "Advogado Especialista III":              {A:15, B:7,  C:12, equipe:false},
-    "Advogado Consultivo II":                 {A:15, B:7,  C:12, equipe:false},
-    "Líder Jurídico I":                       {A:15, B:7,  C:12, equipe:true},
-    "Líder de Controladoria Jurídica I":      {A:15, B:7,  C:12, equipe:true},
-    "Advogado Especialista II":               {A:15, B:7,  C:12, equipe:false},
+    "Líder de Controladoria Jurídica II":     {A:15, B:7,  C:12, D:10, equipe:true},
+    "Advogado Especialista III":              {A:15, B:7,  C:12, D:10, equipe:false},
+    "Advogado Consultivo II":                 {A:15, B:7,  C:12, D:10, equipe:false},
+    "Líder Jurídico I":                       {A:15, B:7,  C:12, D:10, equipe:true},
+    "Líder de Controladoria Jurídica I":      {A:15, B:7,  C:12, D:10, equipe:true},
+    "Advogado Especialista II":               {A:15, B:7,  C:12, D:10, equipe:false},
 
-    "Advogado Consultivo I":                  {A:18, B:4,  C:12, equipe:false},
-    "Advogado III":                           {A:18, B:4,  C:12, equipe:false},
-    "Advogado de Controladoria Jurídica III": {A:18, B:4,  C:12, equipe:false},
-    "Advogado Especialista I":                {A:18, B:4,  C:12, equipe:false},
-    "Advogado II":                            {A:18, B:4,  C:12, equipe:false},
+    "Advogado Consultivo I":                  {A:18, B:4,  C:12, D:10, equipe:false},
+    "Advogado III":                           {A:18, B:4,  C:12, D:10, equipe:false},
+    "Advogado de Controladoria Jurídica III": {A:18, B:4,  C:12, D:10, equipe:false},
+    "Advogado Especialista I":                {A:18, B:4,  C:12, D:10, equipe:false},
+    "Advogado II":                            {A:18, B:4,  C:12, D:10, equipe:false},
 
-    "Advogado de Controladoria Jurídica II":  {A:21, B:1,  C:12, equipe:false},
-    "Advogado I":                             {A:21, B:1,  C:12, equipe:false},
-    "Advogado de Controladoria Jurídica I":   {A:21, B:1,  C:12, equipe:false},
+    "Advogado de Controladoria Jurídica II":  {A:21, B:1,  C:12, D:10, equipe:false},
+    "Advogado I":                             {A:21, B:1,  C:12, D:10, equipe:false},
+    "Advogado de Controladoria Jurídica I":   {A:21, B:1,  C:12, D:10, equipe:false},
 
     // Equipe Administrativa (A=Entrega, B=Negócio, C=Experiência Interna) — pesos iguais
-    "Equipe Administrativa":                  {A:10, B:10, C:10, equipe:false},
+    "Equipe Administrativa":                  {A:10, B:10, C:10, D:10, equipe:false},
 
     // Estagiário — foco em desenvolvimento (A) ligeiramente maior
-    "Estagiário":                             {A:12, B:9,  C:9,  equipe:false},
+    "Estagiário":                             {A:12, B:9,  C:9, D:10,  equipe:false},
 
     // Gestor Administrativo — liderança: A e B mais pesados
-    "Gestor Administrativo":                  {A:10, B:10, C:10, equipe:true}
+    "Gestor Administrativo":                  {A:10, B:10, C:10, D:10, equipe:true}
   };
 
  window.getPesos = async function(){
@@ -1073,9 +1078,12 @@ window.PESOS_PADRAO = {
     if (snap.exists()) {
       const data = snap.data();
       if (data.pesos) {
+        // Garantir D=10 para cargos que não tinham D
+        var p = data.pesos;
+        Object.keys(p).forEach(function(k){ if(!p[k].D) p[k].D = 10; });
         // Atualiza cache local e retorna
-// [FIRESTORE-ONLY DISABLED]         localStorage.setItem('nb_pesos_funcao', JSON.stringify(data.pesos));
-        window.PESOS_FUNCAO = data.pesos;
+// [FIRESTORE-ONLY DISABLED]         localStorage.setItem('nb_pesos_funcao', JSON.stringify(p));
+        window.PESOS_FUNCAO = p;
         console.log("Pesos carregados do Firestore");
         return data.pesos;
       }
@@ -1143,11 +1151,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const qbRef = doc(db, "aia_config", "qbank");
     const qbSnap = await getDoc(qbRef);
     if (qbSnap.exists() && qbSnap.data() && qbSnap.data().qbank) {
-      window.QBANK = qbSnap.data().qbank;
-      console.log("✔ QBANK carregado do Firestore (aia_config/qbank)");
+      // Mescla: QBANK_DEFAULT base + Firestore sobrescreve onde existir
+      // Garante que cargos novos (ex: Sócio Diretor) sempre tenham perguntas
+      var _qbFirestore = qbSnap.data().qbank;
+      var _qbDefault = window.QBANK_DEFAULT || {};
+      window.QBANK = Object.assign({}, _qbDefault, _qbFirestore);
+      console.log("✔ QBANK carregado do Firestore e mesclado com padrão");
     } else {
-      window.QBANK = window.QBANK || {};
-      console.warn("⚠️ QBANK não encontrado em aia_config/qbank (usando vazio)");
+      window.QBANK = window.QBANK_DEFAULT || window.QBANK || {};
+      console.warn("⚠️ QBANK não encontrado no Firestore, usando padrão local");
     }
   } catch (err) {
     window.QBANK = window.QBANK || {};
@@ -1203,6 +1215,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Popula os campos após carregar tudo
   setupNomeList('u_nome', 'lista_u_nome');
 
+  // Mescla QBANK do Firestore com QBANK_DEFAULT — garante cargos novos (ex: Sócio Diretor)
+  if(window.QBANK_DEFAULT){
+    window.QBANK = Object.assign({}, window.QBANK_DEFAULT, window.QBANK || {});
+  }
 
   await window.getPesos(); // espere os pesos carregarem
 
@@ -1553,7 +1569,7 @@ window.mc = window.mc || {}; // evita erros caso algum gráfico use 'mc' sem def
 <div class="small" style="margin-top:6px">A soma A+B+C pode ser qualquer valor; usamos proporção. Marque “Equipe” para habilitar abas de liderança/consolidação por padrão para essa função.</div>
 <div style="overflow:auto; margin-top:8px">
 <table id="tabPesos">
-<thead><tr><th>Função</th><th>A</th><th>B</th><th>C</th><th>Equipe?</th></tr></thead>
+<thead><tr><th>Função</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Equipe?</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
@@ -1712,62 +1728,6 @@ window.mc = window.mc || {}; // evita erros caso algum gráfico use 'mc' sem def
     </div>
   </div>
 
-  <!-- ── SEÇÃO 1: OKRs POR EIXO ─────────────────────────── -->
-  <div style="padding:20px 24px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--ink);">Seção 1 — Objetivos e Resultados-Chave (OKR)</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;"><b>O:</b> Meta qualitativa e aspiracional &nbsp;·&nbsp; <b>KR:</b> Métricas mensuráveis que comprovam o alcance</div>
-      </div>
-      <div style="display:none;">
-        <button class="btn secondary" id="btn_add_at" style="font-size:11px;padding:5px 12px;">+ Entrega</button>
-        <button class="btn secondary" id="btn_add_pf" style="font-size:11px;padding:5px 12px;">+ Negócio</button>
-        <button class="btn secondary" id="btn_add_su" style="font-size:11px;padding:5px 12px;">+ Cliente</button>
-      </div>
-    </div>
-
-    <!-- Grid de 3 eixos -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-
-      <!-- Eixo A: Entrega -->
-      <div style="border:1px solid var(--line);border-radius:8px;overflow:hidden;">
-        <div style="background:#F8F6F2;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:8px;">
-          <div style="width:8px;height:8px;border-radius:2px;background:var(--brand-2);flex-shrink:0;"></div>
-          <span style="font-size:12px;font-weight:600;color:var(--ink);">Entrega Jurídica</span>
-        </div>
-        <div style="padding:12px 14px;min-height:120px;">
-          <div id="wrap_at"></div>
-          <button class="btn ghost" id="btn_add_at_vis" style="font-size:11px;padding:4px 10px;margin-top:6px;width:100%;text-align:center;">+ Adicionar objetivo</button>
-        </div>
-      </div>
-
-      <!-- Eixo B: Negócio -->
-      <div style="border:1px solid var(--line);border-radius:8px;overflow:hidden;">
-        <div style="background:#F8F6F2;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:8px;">
-          <div style="width:8px;height:8px;border-radius:2px;background:var(--brand);flex-shrink:0;"></div>
-          <span style="font-size:12px;font-weight:600;color:var(--ink);">Geração de Negócios</span>
-        </div>
-        <div style="padding:12px 14px;min-height:120px;">
-          <div id="wrap_pf"></div>
-          <button class="btn ghost" id="btn_add_pf_vis" style="font-size:11px;padding:4px 10px;margin-top:6px;width:100%;text-align:center;">+ Adicionar objetivo</button>
-        </div>
-      </div>
-
-      <!-- Eixo C: Cliente -->
-      <div style="border:1px solid var(--line);border-radius:8px;overflow:hidden;">
-        <div style="background:#F8F6F2;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:8px;">
-          <div style="width:8px;height:8px;border-radius:2px;background:#8DADB5;flex-shrink:0;"></div>
-          <span style="font-size:12px;font-weight:600;color:var(--ink);">Experiência do Cliente</span>
-        </div>
-        <div style="padding:12px 14px;min-height:120px;">
-          <div id="wrap_su"></div>
-          <button class="btn ghost" id="btn_add_su_vis" style="font-size:11px;padding:4px 10px;margin-top:6px;width:100%;text-align:center;">+ Adicionar objetivo</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
   <!-- ── SEPARADOR ──────────────────────────────────────── -->
   <div style="border-top:1px solid var(--line);margin:0 24px;"></div>
 
@@ -1796,10 +1756,14 @@ window.mc = window.mc || {}; // evita erros caso algum gráfico use 'mc' sem def
         <select class="select" id="cons_pdi_acc_cat">
           <option value="">Eixo...</option>
           <option value="Entrega Jurídica">Entrega Jurídica</option>
-          <option value="Geração de Negócios">Geração de Negócios</option>
+          <option value="Visão do Negócio">Visão do Negócio</option>
           <option value="Experiência do Cliente">Experiência do Cliente</option>
+          <option value="Comportamental">Comportamental</option>
         </select>
-        <input class="input" id="cons_pdi_acc_data" type="date"/>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <label style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Previsão de conclusão</label>
+          <input class="input" id="cons_pdi_acc_data" type="date"/>
+        </div>
         <select class="select" id="cons_pdi_acc_status">
           <option value="">Status...</option>
           <option value="planejada">Planejada</option>
@@ -1870,10 +1834,10 @@ function findSiglaByNome(nome){
               var f = my.find(x => norm(x.nome)===norm(nome));
               return f ? (f.sigla||'') : '';
            
-          function prop(cat){ return {at:'Entrega Jurídica', pf:'Geração de Negócios', su:'EXxperiência do Cliente'}[cat] || cat; }
+          function prop(cat){ return {at:'entrega jurídica', pf:'visão do negócio', su:'experiência do cliente', comp:'comportamental'}[cat] || cat; }
           var _state = {
             colaborador:'', colaborador_sigla:'', periodo:'',
-            'Entrega jurídica':[], 'Geração de negócios':[], 'Experiência do cliente':[],
+            'entrega jurídica':[], 'visão do negócio':[], 'experiência do cliente':[], 'comportamental':[],
             acomp:[], conclusao:{data:'',resultado:''}
           };
 
@@ -1884,6 +1848,7 @@ function findSiglaByNome(nome){
             // dynamic containers
             wrap_at: document.getElementById('wrap_at'),
             wrap_pf: document.getElementById('wrap_pf'),
+            wrap_comp: document.getElementById('wrap_comp'),
             wrap_su: document.getElementById('wrap_su'),
             // acompanhamento
             acc_list: (document.querySelector('#cons_pdi_acomp_block #cons_pdi_acc_list') || document.getElementById('cons_pdi_acc_list')),
@@ -1948,16 +1913,16 @@ function findSiglaByNome(nome){
           }
 
           function ensureAtLeastOne(){
-            ['at','pf','su'].forEach(function(cat){
+            ['at','pf','su','comp'].forEach(function(cat){
               if(!_state[prop(cat)] || !_state[prop(cat)].length){ _state[prop(cat)] = [{o:'',krs:['','','']}]; }
             });
           }
 
           function renderAll(){
   const U = ui();
-  if (Array.isArray(_state.entrega jurídica) && _state.entrega jurídica.length && U.okr_at){ U.okr_at.value = _state.entrega jurídica[0].o || ''; }
-  if (Array.isArray(_state.geração de negócios) && _state.geração de negócios.length && U.okr_pf){ U.okr_pf.value = _state.geração de negócios[0].o || ''; }
-  if (Array.isArray(_state.experiência do cliente) && _state.experiência do client.length && U.okr_su){ U.okr_su.value = _state.experiência do cliente[0].o || ''; }
+  if (Array.isArray(_state['entrega jurídica']) && _state['entrega jurídica'].length && U.okr_at){ U.okr_at.value = _state['entrega jurídica'][0].o || ''; }
+  if (Array.isArray(_state['visão do negócio']) && _state['visão do negócio'].length && U.okr_pf){ U.okr_pf.value = _state['visão do negócio'][0].o || ''; }
+  if (Array.isArray(_state['experiência do cliente']) && _state['experiência do client'].length && U.okr_su){ U.okr_su.value = _state['experiência do cliente'][0].o || ''; }
   renderCat('at'); renderCat('pf'); renderCat('su');
   if (U.colab && 'value' in U.colab){ U.colab.value = (_state.colaborador||''); }
   if (U.periodo) U.periodo.value = _state.periodo || '';
@@ -1981,13 +1946,26 @@ function renderAcc(items){
     return Object.assign({}, it, { status: st });
   });
 
-  el.innerHTML = items.map(function(it,i){
+  // Metas concluídas/canceladas só aparecem ao consultar anteriores
+  var _mostrandoAnteriores = el.getAttribute('data-show-all') === '1';
+  var itemsVisiveis = _mostrandoAnteriores ? items : items.filter(function(it){ 
+    return it.status !== 'concluida' && it.status !== 'cancelada' && it.status !== 'nao_concluida';
+  });
+  var nOcultas = items.length - itemsVisiveis.length;
+  // Mostrar contador de ocultas
+  var topEl = document.getElementById('cons_pdi_acc_list_top');
+  if(topEl){
+    var total = items.length, concluidas = items.filter(function(it){ return it.status==='concluida'; }).length;
+    topEl.textContent = 'Metas: ' + total + ' · Concluídas: ' + concluidas + (nOcultas > 0 && !_mostrandoAnteriores ? ' · ' + nOcultas + ' oculta(s)' : '');
+  }
+  el.innerHTML = itemsVisiveis.map(function(it,i){
+    var _realIdx = items.indexOf(it);
     return '' +
       '<div class="row" style="gap:8px;margin:4px 0;align-items:center">' +
         '<div class="input" style="min-width:320px">'+(it.text||'')+'</div>' +
         '<div class="input" style="min-width:140px">'+(it.data||'—')+'</div>' +
-        '<select class="select acc-status" style="min-width:200px" data-i="'+i+'"><option value="andamento">Em andamento</option><option value="concluida">Concluída</option><option value="nao_concluida">Não concluída</option><option value="cancelada">Cancelada</option></select>' +
-        '<button class="btn ghost acc-remove" data-i="'+i+'">remover</button>' +
+        '<select class="select acc-status" style="min-width:200px" data-i="'+_realIdx+'"><option value="andamento">Em andamento</option><option value="concluida">Concluída</option><option value="nao_concluida">Não concluída</option><option value="cancelada">Cancelada</option></select>' +
+        '<button class="btn ghost acc-remove" data-i="'+_realIdx+'">remover</button>' +
       '</div>';
   }).join('');
 
@@ -2027,9 +2005,9 @@ function renderAcc(items){
   _state.okr_at_text = (U.okr_at && U.okr_at.value||'').trim();
   _state.okr_pf_text = (U.okr_pf && U.okr_pf.value||'').trim();
   _state.okr_su_text = (U.okr_su && U.okr_su.value||'').trim();
-  _state.entrega jurídica      = readCat('at');
-  _state.geração de negócios      = readCat('pf');
-  _state.experiência do cliente = readCat('su');
+  _state['entrega jurídica']      = readCat('at');
+  _state['visão do negócio']      = readCat('pf');
+  _state['experiência do cliente'] = readCat('su');
   _state.periodo = (U.periodo?.value || '').trim();
   _state.conclusao = { data: U.c_data?.value || '', resultado: (U.c_result?.value || '').trim() };
 }
@@ -2045,7 +2023,7 @@ function renderAcc(items){
             uiToState();
             // valida: pelo menos 1 objetivo em cada grupo
             var ok = ['at','pf','su'].every(cat => (_state[prop(cat)]||[]).some(it => it.o));
-            if(!ok){ alert('Informe ao menos 1 Objetivo em cada grupo (Entrega jurídica, Geração de negócio, Experiência do cliente).'); return; }
+            if(!ok){ alert('Informe ao menos 1 Objetivo em cada grupo (Entrega jurídica, Visão do negócio, Experiência do cliente).'); return; }
             var rec = Object.assign({ ts: new Date().toISOString(),
               lider_nome:(currentLeader().nome||''), lider_sigla:(currentLeader().sigla||'') }, _state);
             
@@ -2079,9 +2057,9 @@ async function load(){
               return [{o:'',krs:['','','']}];
             }
             _state = rec;
-            _state.entrega jurídica = toArr(rec.entrega jurídica);
-            _state.geração de negódio = toArr(rec.geração de negócios);
-            _state.experiência do cliente = toArr(rec.experiência do cliente);
+            _state['entrega jurídica'] = toArr(rec['entrega jurídica']);
+            _state['visão do negócio'] = toArr(rec['visão do negócio']);
+            _state['experiência do cliente'] = toArr(rec['experiência do cliente']);
             ensureAtLeastOne();
             renderAll();
             window.showToast ? window.showToast('PDI carregado.', 'info') : alert('PDI carregado.');
@@ -2144,9 +2122,9 @@ function exportPDF() {
     html += "<div><b>Colaborador:</b> " + esc(st.colaborador) + " (" + esc(st.colaborador_sigla || "") + ")";
     html += " &nbsp; | &nbsp; <b>Período:</b> " + esc(st.periodo || "") + "</div>";
 
-    html += sectionOKR("Entrega jurídica", st.entrega jurídica);
-    html += sectionOKR("Geração de negócio", st.geração de negócio);
-    html += sectionOKR("Experiência do cliente", st.experiência do cliente);
+    html += sectionOKR("Entrega jurídica", st['entrega jurídica']);
+    html += sectionOKR("visão do negócio", st['visão do negócio']);
+    html += sectionOKR("Experiência do cliente", st['experiência do cliente']);
 
     html += "<h3>Acompanhamento</h3>";
     html += "<table><thead><tr><th>Data</th><th>Registro</th><th>Status</th></tr></thead>";
@@ -2306,7 +2284,7 @@ function wire(){
               
               // ATENÇÃO: Apenas inicializa o _state para renderizar os campos
               window._state = { colaborador:nome, colaborador_sigla: sigla, periodo:'',
-                         'entrega jurídica':[], 'geração de negócio':[], 'experiência do cliente':[],
+                         'entrega jurídica':[], 'visão do negócio':[], 'experiência do cliente':[],
                          acomp:[], conclusao:{data:'',resultado:''} };
               
               document.getElementById('cons_pdi_colab').value = nome + (sigla ? ' ('+sigla+')' : '');
@@ -2326,10 +2304,12 @@ function wire(){
             var add_at = document.getElementById('btn_add_at');
             var add_pf = document.getElementById('btn_add_pf');
             var add_su = document.getElementById('btn_add_su');
-            if(add_at) add_at.onclick = function(){ _state.entrega jurídica.push({o:'',krs:['','','']}); renderCat('at'); };
-            if(add_pf) add_pf.onclick = function(){ _state.geração de negócio.push({o:'',krs:['','','']}); renderCat('pf'); };
-            if(add_su) add_su.onclick = function(){ _state.experiência do cliente.push({o:'',krs:['','','']}); renderCat('su'); };
-          }
+            if(add_at) add_at.onclick = function(){ _state['entrega jurídica'].push({o:'',krs:['','','']}); renderCat('at'); };
+            if(add_pf) add_pf.onclick = function(){ _state['visão do negócio'].push({o:'',krs:['','','']}); renderCat('pf'); };
+            if(add_su) add_su.onclick = function(){ _state['experiência do cliente'].push({o:'',krs:['','','']}); renderCat('su'); };
+
+            var add_comp = document.getElementById('btn_add_comp');
+            if(add_comp) add_comp.onclick = function(){ _state['comportamental'].push({o:'',krs:['','','']}); renderCat('comp'); };          }
 
           document.addEventListener('click', function(e){
             if(e.target && e.target.id==='cons_pdi_add_acc'){
@@ -2408,6 +2388,13 @@ catch(e){return (s||'').trim().toLowerCase();}}
   // ==== PERGUNTAS POR FUNÇÃO (A/B/C) — base ====
   
   const CARGOS_POR_GRUPO = {
+    SOCIO_DIRETOR: [
+      "Sócio Diretor"
+    ],
+    SOCIOS: [
+      "Sócio II",
+      "Sócio III"
+    ],
     GESTOR: [
       "Gerente Jur. Consultivo II",
       "Gerente Jurídico II",
@@ -2453,20 +2440,80 @@ catch(e){return (s||'').trim().toLowerCase();}}
   };
 
   const MODELO_AVALIACAO = {
-    GESTOR: {
+    SOCIO_DIRETOR: {
       A: [
-        { eixo: "Atuação Técnica", rotulo: "Define diretrizes técnicas, rotinas e padrões de excelência da área, garantindo segurança jurídica e consistência das entregas." },
-        { eixo: "Atuação Consultiva", rotulo: "Atua como referência consultiva em temas complexos, influenciando decisões e direcionando estratégias jurídicas do negócio." },
-        { eixo: "Protagonismo em Equipe", rotulo: "Lidera o time, define prioridades, acompanha resultados e fortalece a cultura de alta performance." },
-        { eixo: "Autodesenvolvimento", rotulo: "Estimula a evolução do time, compartilha conhecimento e atua como mentor no desenvolvimento de talentos." }
+        { eixo: "Direcionamento Estratégico", rotulo: "Define diretrizes claras e sustentáveis para o crescimento e posicionamento estratégico do Escritório." },
+        { eixo: "Governança e Tomada de Decisão", rotulo: "Atua com equilíbrio, coerência e segurança nas decisões institucionais e societárias." },
+        { eixo: "Sustentabilidade do Negócio", rotulo: "Conduz o Escritório com visão de longo prazo, equilíbrio financeiro e foco na perpetuação da sociedade." },
+        { eixo: "Inovação e Expansão", rotulo: "Estimula novas oportunidades, desenvolvimento de áreas, inovação e evolução do modelo de negócio." }
       ],
       B: [
-        { eixo: "Interação Negocial", rotulo: "Atrai oportunidades, amplia a carteira, participa de negociações estratégicas e fortalece a geração de negócios." },
-        { eixo: "Negociação e Influência", rotulo: "Influencia públicos relevantes, sustenta decisões e conduz negociações complexas com segurança institucional." }
+        { eixo: "Desenvolvimento de Lideranças", rotulo: "Estimula o desenvolvimento e preparação de novos líderes e sucessores para o Escritório." },
+        { eixo: "Gestão da Sociedade", rotulo: "Atua de forma colaborativa e equilibrada na condução da sociedade e alinhamento entre os sócios." },
+        { eixo: "Cultura e Valores", rotulo: "Fortalece a cultura, os valores e a identidade institucional do Escritório nas decisões e relações internas." },
+        { eixo: "Reconhecimento e Meritocracia", rotulo: "Demonstra coerência e justiça nos processos de reconhecimento, crescimento e evolução profissional." }
+      ],
+      C: [
+        { eixo: "Relacionamento Institucional", rotulo: "Representa o Escritório com credibilidade, influência e fortalecimento institucional perante mercado e clientes." },
+        { eixo: "Comunicação e Transparência", rotulo: "Comunica decisões, direcionamentos e expectativas com clareza, acessibilidade e transparência." },
+        { eixo: "Proximidade com os Sócios", rotulo: "Mantém abertura para escuta, diálogo e apoio aos sócios e lideranças do Escritório." },
+        { eixo: "Integração entre Áreas", rotulo: "Estimula colaboração, cross-selling e integração estratégica entre áreas e sócios." }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
+      ]
+    },
+    SOCIOS: {
+      A: [
+        { eixo: "Atuação Técnica", rotulo: "Define diretrizes técnicas, rotinas e padrões de excelência da área, garantindo segurança jurídica, rigor técnico e consistência das entregas." },
+        { eixo: "Atuação Consultiva", rotulo: "Atua como referência consultiva em temas complexos, influenciando decisões e direcionando estratégias jurídicas do negócio." },
+        { eixo: "Liderança", rotulo: "Lidera o time, define prioridades, acompanha resultados e fortalece a cultura de alta performance." },
+        { eixo: "Desenvolvimento", rotulo: "Estimula a evolução do time, compartilha conhecimento e atua como mentor no desenvolvimento de talentos." }
+      ],
+      B: [
+        { eixo: "Captação Originária", rotulo: "Atua estrategicamente na prospecção, negociação e efetivação de novos clientes, contratos e oportunidades comerciais para o Escritório." },
+        { eixo: "Captação Secundária / Expansão de Carteira", rotulo: "Identifica, negocia e concretiza novas oportunidades em clientes existentes, ampliando a carteira, fortalecendo relacionamento e expandindo a atuação do Escritório." },
+        { eixo: "Negociação e Influência", rotulo: "Conduz negociações estratégicas, influencia stakeholders relevantes e sustenta posicionamentos com segurança institucional e comercial, fortalecendo relacionamentos e contribuindo para a geração de novos negócios e oportunidades para o Escritório." },
+        { eixo: "Representatividade Institucional", rotulo: "Fortalece a imagem e posicionamento do Escritório por meio de networking, participação institucional, relacionamento com mercado e presença estratégica." }
+      ],
+      C: [
+        { eixo: "Gestão do Relacionamento", rotulo: "Constrói relacionamento estratégico e de confiança com clientes-chave, atuando de forma próxima e consultiva, antecipando demandas, riscos e oportunidades para o Escritório." },
+        { eixo: "Comunicação", rotulo: "Comunica-se com clareza, segurança e representatividade institucional, conduzindo alinhamentos estratégicos e fortalecendo a experiência e confiança dos clientes." },
+        { eixo: "Proatividade e Geração de Valor", rotulo: "Atua de forma proativa junto aos clientes, identificando riscos, oportunidades e soluções estratégicas que agreguem valor ao negócio e fortaleçam o relacionamento com o Escritório." }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
+      ]
+    },
+    GESTOR: {
+      A: [
+        { eixo: "Atuação Técnica", rotulo: "Aplica diretrizes técnicas, rotinas administrativas e padrões de excelência da área, garantindo segurança jurídica e consistência das entregas." },
+        { eixo: "Atuação Consultiva", rotulo: "Atua como referência consultiva em temas complexos, influenciando decisões e direcionando estratégias jurídicas do negócio." },
+        { eixo: "Protagonismo em Equipe", rotulo: "Lidera o time, define prioridades, acompanha resultados e fortalece a cultura de alta performance." },
+        { eixo: "Desenvolvimento", rotulo: "Estimula a evolução do time, compartilha conhecimento e atua como mentor no desenvolvimento de talentos." }
+      ],
+      B: [
+        { eixo: "Visão do Negócio e Interação Estratégica", rotulo: "Compreende os impactos do trabalho jurídico no negócio do cliente e do Escritório, atuando de forma estratégica no relacionamento, identificação de oportunidades e fortalecimento da atuação institucional e comercial." },
+        { eixo: "Negociação e Influência", rotulo: "Conduz negociações estratégicas, influencia stakeholders relevantes e sustenta posicionamentos com segurança institucional, fortalecendo relacionamentos e contribuindo para a geração de novos negócios e oportunidades para o Escritório." }
       ],
       C: [
         { eixo: "Gestão do Relacionamento", rotulo: "Constrói relacionamento estratégico e de confiança com clientes-chave, antecipando demandas e riscos." },
         { eixo: "Comunicação", rotulo: "Comunica direcionamentos, expectativas e mensagens críticas com clareza, segurança e representatividade institucional." }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
       ]
     },
     ESPECIALISTA: {
@@ -2474,15 +2521,22 @@ catch(e){return (s||'').trim().toLowerCase();}}
         { eixo: "Atuação Técnica", rotulo: "É referência técnica confiável, produz entregas de alto nível e sustenta decisões jurídicas com profundidade." },
         { eixo: "Atuação Consultiva", rotulo: "Atua com visão consultiva e contribui tecnicamente para decisões estratégicas em temas complexos." },
         { eixo: "Protagonismo em Equipe", rotulo: "Orienta profissionais mais jovens, dá feedback qualificado e eleva o nível técnico da equipe." },
-        { eixo: "Autodesenvolvimento", rotulo: "Busca aprimoramento contínuo, aprofunda conhecimento especializado e transforma aprendizado em resultado prático." }
+        { eixo: "Desenvolvimento", rotulo: "Busca aprimoramento contínuo, aprofunda conhecimento especializado e transforma aprendizado em resultado prático." }
       ],
       B: [
-        { eixo: "Interação Negocial", rotulo: "Identifica oportunidades em clientes atendidos, apoia iniciativas comerciais e amplia o valor dos serviços prestados." },
-        { eixo: "Negociação e Influência", rotulo: "Sustenta posicionamentos técnicos com firmeza e influencia decisões relevantes em discussões internas e externas." }
+        { eixo: "Visão do Negócio e Interação Estratégica", rotulo: "Compreende os impactos do trabalho jurídico no negócio do cliente e do Escritório, atuando de forma estratégica no relacionamento, identificação de oportunidades e fortalecimento da atuação institucional e comercial." },
+        { eixo: "Negociação e Influência", rotulo: "Sustenta posicionamentos técnicos e participa de negociações relevantes com segurança técnica e boa interlocução institucional, contribuindo para a geração de novos negócios e oportunidades para o Escritório." }
       ],
       C: [
         { eixo: "Gestão do Relacionamento", rotulo: "Mantém relacionamento técnico-consultivo próximo aos clientes, reforçando confiança e percepção de valor." },
         { eixo: "Comunicação", rotulo: "Comunica análises, riscos e recomendações com clareza, objetividade e segurança técnica." }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
       ]
     },
     SENIOR: {
@@ -2494,11 +2548,18 @@ catch(e){return (s||'').trim().toLowerCase();}}
       ],
       B: [
         { eixo: "Interação Negocial", rotulo: "Sinaliza oportunidades de expansão de serviços, fortalece relações e contribui para novas frentes de negócio." },
-        { eixo: "Negociação e Influência", rotulo: "Utiliza argumentos consistentes para influenciar decisões, gerar adesão e apoiar negociações do dia a dia." }
+        { eixo: "Negociação e Influência", rotulo: "Compreende os impactos do trabalho jurídico no negócio do cliente e do Escritório, atuando de forma estratégica no relacionamento, identificação de oportunidades e fortalecimento da atuação institucional e comercial." }
       ],
       C: [
         { eixo: "Gestão do Relacionamento", rotulo: "Relaciona-se com clientes e interfaces com credibilidade, disponibilidade e postura profissional." },
         { eixo: "Comunicação", rotulo: "Participa de discussões com assertividade e produz comunicações claras, objetivas e de boa qualidade." }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
       ]
     },
     INTERMEDIARIO: {
@@ -2515,6 +2576,13 @@ catch(e){return (s||'').trim().toLowerCase();}}
       C: [
         { eixo: "Gestão do Relacionamento", rotulo: "Mantém bom atendimento, esclarece dúvidas e presta contas com proatividade e responsabilidade." },
         { eixo: "Comunicação", rotulo: "Comunica-se de forma aberta, cordial e colaborativa, alinhada aos padrões do escritório." }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
       ]
     },
     INICIAL: {
@@ -2531,10 +2599,15 @@ catch(e){return (s||'').trim().toLowerCase();}}
       C: [
         { eixo: "Gestão do Relacionamento", rotulo: "Atende de forma adequada clientes internos e externos, preservando a imagem e o padrão de serviço do escritório." },
         { eixo: "Comunicação", rotulo: "Comunica-se adequadamente na forma oral e escrita, com clareza, respeito e atenção às orientações recebidas." }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
       ]
     },
-
-    // ── EQUIPE ADMINISTRATIVA ──────────────────────────────────────────────
     EQUIPE_ADMINISTRATIVA: {
       A: [
         { eixo: "Entrega com Qualidade", rotulo: "Entrega suas atividades com qualidade, organização e dentro dos prazos?" },
@@ -2544,7 +2617,7 @@ catch(e){return (s||'').trim().toLowerCase();}}
       ],
       B: [
         { eixo: "Eficiência Operacional", rotulo: "Contribui para a eficiência da área, evitando retrabalho e desperdícios?" },
-        { eixo: "Visão de Negócio", rotulo: "Demonstra entendimento do impacto do seu trabalho nos resultados da empresa?" },
+        { eixo: "Visão do Negócio", rotulo: "Demonstra entendimento do impacto do seu trabalho nos resultados da empresa?" },
         { eixo: "Melhoria de Processos", rotulo: "Propõe melhorias em processos, rotinas ou uso de recursos?" },
         { eixo: "Uso de Dados", rotulo: "Utiliza dados, informações ou indicadores para apoiar decisões ou atividades?" }
       ],
@@ -2553,10 +2626,15 @@ catch(e){return (s||'').trim().toLowerCase();}}
         { eixo: "Comunicação", rotulo: "Mantém comunicação profissional e colaborativa com equipe e áreas?" },
         { eixo: "Colaboração", rotulo: "Demonstra postura de colaboração e disponibilidade para apoiar outros?" },
         { eixo: "Foco em Solução", rotulo: "Resolve demandas e problemas com responsabilidade e foco na solução?" }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
       ]
     },
-
-    // ── ESTAGIÁRIO ─────────────────────────────────────────────────────────
     ESTAGIARIO: {
       A: [
         { eixo: "Organização e Prazo", rotulo: "Realiza as atividades com organização, atenção e dentro dos prazos estabelecidos?" },
@@ -2575,10 +2653,15 @@ catch(e){return (s||'').trim().toLowerCase();}}
         { eixo: "Comunicação", rotulo: "Mantém comunicação clara e respeitosa com a equipe?" },
         { eixo: "Colaboração", rotulo: "Demonstra postura colaborativa e disposição para apoiar colegas?" },
         { eixo: "Postura Profissional", rotulo: "Lida com demandas e orientações de forma responsável e profissional?" }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
       ]
     },
-
-    // ── GESTOR ADMINISTRATIVO ──────────────────────────────────────────────
     GESTOR_ADMINISTRATIVO: {
       A: [
         { eixo: "Gestão da Entrega", rotulo: "Garante a qualidade, organização e cumprimento dos prazos da equipe?" },
@@ -2597,6 +2680,13 @@ catch(e){return (s||'').trim().toLowerCase();}}
         { eixo: "Desenvolvimento de Equipe", rotulo: "Demonstra disponibilidade e capacidade de apoio ao desenvolvimento da equipe?" },
         { eixo: "Gestão de Conflitos", rotulo: "Atua na condução de conflitos e demandas com equilíbrio e foco em solução?" },
         { eixo: "Cultura e Ambiente", rotulo: "Promove ambiente de trabalho colaborativo, respeitoso e alinhado à cultura do Escritório?" }
+      ],
+      D: [
+        { eixo: "Inteligência emocional", rotulo: "Mantém equilíbrio emocional, maturidade e postura profissional diante de pressão, mudanças, conflitos e situações desafiadoras." },
+        { eixo: "Resiliência", rotulo: "Demonstra capacidade de adaptação, flexibilidade e constância frente a mudanças, demandas e desafios do ambiente de trabalho." },
+        { eixo: "Comunicação", rotulo: "Comunica-se de forma clara, respeitosa e colaborativa, mantendo relacionamento profissional adequado com equipes, lideranças e clientes." },
+        { eixo: "Proatividade", rotulo: "Atua de forma proativa, antecipando necessidades, propondo soluções e assumindo responsabilidades compatíveis com o nível da função." },
+        { eixo: "Colaboração e Cultura Organizacional", rotulo: "Constrói relações respeitosas e colaborativas, contribuindo para um ambiente alinhado à cultura, valores e objetivos do Escritório." }
       ]
     }
   };
@@ -2606,6 +2696,7 @@ catch(e){return (s||'').trim().toLowerCase();}}
     return acc;
   }, {});
 
+  window.QBANK_DEFAULT = QBANK_DEFAULT;
   const FUNCOES_LISTA = Object.keys(QBANK_DEFAULT);
 
 
@@ -2701,18 +2792,31 @@ let QBANK = Array.isArray(qbRaw) && qbRaw.length
       var senhaInput = document.querySelector('#u_senha');
       if(!sel || !senhaInput) return;
       var func = sel.value;
-      var pesos = window.PESOS_PADRAO || {};
-      var temEquipe = pesos[func] && pesos[func].equipe === true;
-      // Mostrar senha se tem equipe OU se é gestor/coordenador (identificado pelo pesos.A baixo)
-      // Mais simples: mostrar se tem equipe:true nos pesos
+      if(!func){ senhaInput.style.display = 'none'; return; }
+      // Verificar nos pesos (PADRAO ou FUNCAO)
+      var pesos = window.PESOS_FUNCAO || window.PESOS_PADRAO || {};
+      var temEquipe = (pesos[func] && pesos[func].equipe === true);
+      // Fallback: verificar pelo nome do cargo
+      if(!temEquipe){
+        var funcLow = func.toLowerCase();
+        temEquipe = /gerente|coordenador|líder|lider|gestor|sócio|socio/i.test(func);
+      }
       senhaInput.style.display = temEquipe ? '' : 'none';
       if(!temEquipe) senhaInput.value = '';
     }
     var sel = document.querySelector('#u_func');
     if(sel){
       sel.addEventListener('change', updateSenhaVisibility);
+      // Também ao mudar pelo autoFill (disparo manual)
+      var _origDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
       // Rodar na carga caso já tenha valor
-      setTimeout(updateSenhaVisibility, 300);
+      setTimeout(updateSenhaVisibility, 800);
+      // Re-verificar após cada keystroke no nome (autoFill pode ter preenchido)
+      var nomeEl = document.querySelector('#u_nome');
+      if(nomeEl){
+        nomeEl.addEventListener('input', function(){ setTimeout(updateSenhaVisibility, 200); });
+        nomeEl.addEventListener('change', function(){ setTimeout(updateSenhaVisibility, 200); });
+      }
     }
   })();
   // Auto-preenche sigla, função e equipe ao selecionar um nome da lista
@@ -2744,6 +2848,7 @@ let QBANK = Array.isArray(qbRaw) && qbRaw.length
         return;
       }
       console.log('[autoFill] encontrado:', JSON.stringify(found), '| equipe:', foundEquipe);
+      console.log('[autoFill] func do Firestore:', found.func, '| opcoes no select:', Array.from(funcEl ? funcEl.options : []).map(function(o){ return o.value; }));
       var siglaEl  = document.querySelector('#u_sigla');
       var funcEl   = document.querySelector('#u_func');
       var equipeEl = document.querySelector('#u_equipe');
@@ -2757,9 +2862,14 @@ let QBANK = Array.isArray(qbRaw) && qbRaw.length
         else funcEl.value = found.func; // tentativa direta como fallback
       }
       if(equipeEl && foundEquipe) equipeEl.value = foundEquipe;
+      // Atualizar visibilidade da senha após autoFill
+      setTimeout(function(){ if(typeof updateSenhaVisibility==='function') updateSenhaVisibility(); }, 50);
     }
     nomeInput.addEventListener('change', autoFill);
-    nomeInput.addEventListener('input',  function(){ setTimeout(autoFill, 150); });
+    // Só dispara no input se o nome tiver pelo menos 6 caracteres (evita buscas por "A", "AL"...)
+    nomeInput.addEventListener('input', function(){
+      if(nomeInput.value.trim().length >= 6) setTimeout(autoFill, 300);
+    });
     // Re-tenta se HIERARQUIA ainda não carregou
     var _autoFillRetry = null;
     nomeInput.addEventListener('change', function(){
@@ -2778,6 +2888,15 @@ let QBANK = Array.isArray(qbRaw) && qbRaw.length
       equipe:document.querySelector('#u_equipe').value.trim()
     };
     if(!USER.nome||!USER.sigla||!USER.func){window.showToast ? window.showToast('Preencha nome, sigla e função.', 'warning') : alert('Preencha nome, sigla e função.');return;}
+    // Validar senha se a função tem equipe
+    var _senhaEl = document.querySelector('#u_senha');
+    var _senhaVisivel = _senhaEl && _senhaEl.style.display !== 'none';
+    var _senhaVal = _senhaEl ? (_senhaEl.value||'').trim() : '';
+    if(_senhaVisivel && !_senhaVal){
+      window.showToast ? window.showToast('Preencha a senha do líder para continuar.', 'warning') : alert('Preencha a senha do líder para continuar.');
+      _senhaEl.focus();
+      return;
+    }
     // Remember last identification
     try{ localStorage.setItem('up9_last_user', JSON.stringify({nome:USER.nome, sigla:USER.sigla, func:USER.func, equipe:USER.equipe})); }catch(_){}
 
@@ -2873,7 +2992,9 @@ window.setUserByName = function(nome){
     const souLiderado = Object.values(H).some(arr=>Array.isArray(arr) && arr.some(p=>(p?.sigla||'').toUpperCase()===sig));
 
     wrap.appendChild(linkBtn('→ Preencher autoavaliação',()=>openTab('auto')));
-    wrap.appendChild(linkBtn('→ Avaliar meu líder',()=>openTab('equipe')));
+    if(USER.func !== 'Sócio Diretor'){
+      wrap.appendChild(linkBtn('→ Avaliar meu líder',()=>openTab('equipe')));
+    }
 
     if(souLider){
       const b = linkBtn(`→ Avaliar meus liderados (${(H[sig]||[]).length})`,()=>openTab('lider'));
@@ -2925,14 +3046,18 @@ document.querySelector('#btnAdmin').onclick = () => {
 
   function buildAdmin(){
     const tb=document.querySelector('#tabPesos tbody'); tb.innerHTML='';
+    // Normalizar PESOS_FUNCAO — se veio do Firestore como {pesos:{...}} extrair o sub-objeto
+    var _pf = window.PESOS_FUNCAO || PESOS_FUNCAO || {};
+    if(_pf.pesos && typeof _pf.pesos === 'object') _pf = _pf.pesos;
     FUNCOES_LISTA.forEach(func=>{
-      const p=PESOS_FUNCAO[func]||{A:10,B:10,C:10,equipe:false};
+      const p=_pf[func]||PESOS_PADRAO[func]||{A:10,B:10,C:10, D:10,equipe:false};
       const tr=document.createElement('tr');
       tr.innerHTML = `
         <td>${func}</td>
         <td><input class="input" type="number" min="0" step="1" value="${p.A}"></td>
         <td><input class="input" type="number" min="0" step="1" value="${p.B}"></td>
         <td><input class="input" type="number" min="0" step="1" value="${p.C}"></td>
+        <td><input class="input" type="number" min="0" step="1" value="${p.D||0}"></td>
         <td><input type="checkbox" ${p.equipe?'checked':''}></td>`;
       tb.appendChild(tr);
     });
@@ -2940,11 +3065,20 @@ document.querySelector('#btnAdmin').onclick = () => {
       const rows=Array.from(document.querySelectorAll('#tabPesos tbody tr'));
       rows.forEach(r=>{
         const func=r.children[0].textContent;
-        const A=+r.children[1].querySelector('input').value||0;
-        const B=+r.children[2].querySelector('input').value||0;
-        const C=+r.children[3].querySelector('input').value||0;
-        const equipe=r.children[4].querySelector('input').checked;
-        PESOS_FUNCAO[func]={A,B,C,equipe};
+        // Suporta tanto data-field quanto posição fixa
+        function getVal(field, childIdx){
+          var byField = r.querySelector('input[data-field="'+field+'"]');
+          if(byField) return byField;
+          return r.children[childIdx] ? r.children[childIdx].querySelector('input') : null;
+        }
+        var eA = getVal('A',1), eB = getVal('B',2), eC = getVal('C',3);
+        var eD = getVal('D',4), eEq = getVal('equipe',5);
+        const A = eA ? (+eA.value||0) : 0;
+        const B = eB ? (+eB.value||0) : 0;
+        const C = eC ? (+eC.value||0) : 0;
+        const D = eD ? (+eD.value||0) : 10;
+        const equipe = eEq ? eEq.checked : false;
+        PESOS_FUNCAO[func]={A,B,C,D,equipe};
       });
       save("nb_pesos_funcao", JSON.stringify(PESOS_FUNCAO));
       window.showToast ? window.showToast('Pesos por função salvos!', 'success') : alert('Pesos salvos!');
@@ -3007,11 +3141,27 @@ document.querySelector('#btnAdmin').onclick = () => {
   const NEED = ['lider_nome','lider_sigla','lider_func','liderado_nome','liderado_sigla','liderado_func'];
 
   const onParsed = async (rows) => {
+    try {
     if(!rows.length) throw new Error('Planilha vazia.');
-    const header = rows[0].map(h=>String(h||'').trim().toLowerCase());
-    if(header.length===1) throw new Error('Arquivo em coluna única.');
-    const idx = k => header.indexOf(k);
-    if(!NEED.every(k=>idx(k)>=0)) throw new Error('Cabeçalho incorreto.');
+    const header = rows[0].map(h=>String(h||'').trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9_]/g,'_'));
+    if(header.length===1) throw new Error('Arquivo em coluna única — use ponto e vírgula ou vírgula como separador.');
+    // Aceita variações de nomes de colunas
+    const aliases = {
+      lider_nome:     ['lider_nome','lider','nome_lider','nome do lider','lider nome'],
+      lider_sigla:    ['lider_sigla','sigla_lider','sigla do lider','lider sigla'],
+      lider_func:     ['lider_func','func_lider','funcao_lider','funcao do lider','cargo_lider','cargo do lider'],
+      liderado_nome:  ['liderado_nome','liderado','nome_liderado','nome do liderado','colaborador','nome'],
+      liderado_sigla: ['liderado_sigla','sigla_liderado','sigla do liderado','sigla'],
+      liderado_func:  ['liderado_func','func_liderado','funcao_liderado','funcao','cargo','cargo_liderado'],
+    };
+    const idx = k => {
+      const opts = aliases[k] || [k];
+      for(const o of opts){ const i = header.indexOf(o); if(i>=0) return i; }
+      return -1;
+    };
+    const missing = NEED.filter(k=>idx(k)<0);
+    if(missing.length) throw new Error('Colunas não encontradas: ' + missing.join(', ') + '\nColunas detectadas: ' + header.join(', '));
 
     const nova = {};
     const lideresMap = {}; // mapa sigla -> {nome, func} dos líderes
@@ -3104,6 +3254,7 @@ document.querySelector('#btnAdmin').onclick = () => {
     const res = await trySaveHierarquiaToFirestore(HIERARQUIA);
     if (!res.ok) alert("Equipes importadas localmente, mas NÃO salvas no Firestore. Veja console.");
     else alert("Equipes importadas e salvas no Firestore! ✔");
+    } catch(err){ alert('Erro ao processar planilha: ' + err.message); console.error(err); }
   };
 
   // Leitura XLSX / CSV
@@ -3198,11 +3349,24 @@ function buildComp(container, func, prefix){
     const Q = Qraw ? {
       A:(Array.isArray(Qraw.A)?Qraw.A:[]).map(normalizeItem).filter(x=>x.rotulo),
       B:(Array.isArray(Qraw.B)?Qraw.B:[]).map(normalizeItem).filter(x=>x.rotulo),
-      C:(Array.isArray(Qraw.C)?Qraw.C:[]).map(normalizeItem).filter(x=>x.rotulo)
+      C:(Array.isArray(Qraw.C)?Qraw.C:[]).map(normalizeItem).filter(x=>x.rotulo),
+      D:(Array.isArray(Qraw.D)?Qraw.D:[]).map(normalizeItem).filter(x=>x.rotulo)
     } : null;
     if(!Q){ el.innerHTML='<div class="muted">Nenhuma pergunta para esta função.</div>'; return; }
     let i=0;
-    [['A','Entrega Jurídica'],['B','Geração de Negócio'],['C','Experiência do Cliente']].forEach(([g,gl])=>{
+    var _titulosGrupo = {
+      A: 'Entrega Jurídica', B: 'Visão do Negócio',
+      C: 'Experiência do Cliente', D: 'Indicadores Comportamentais'
+    };
+    if(func === 'Sócio Diretor'){
+      _titulosGrupo = {
+        A: 'Governança e Direcionamento Estratégico',
+        B: 'Liderança e Desenvolvimento da Sociedade',
+        C: 'Relacionamento Institucional e Experiência dos Sócios',
+        D: 'Visão de Futuro e Geração de Valor'
+      };
+    }
+    Object.entries(_titulosGrupo).map(([g,gl])=>[g,gl]).forEach(([g,gl])=>{
       if(!Q[g]||!Q[g].length) return;
       const h=document.createElement('h4'); h.textContent=`${g} — ${gl}`; h.style.margin='12px 0 6px 0'; el.appendChild(h);
       Q[g].forEach(item=>{
@@ -3283,7 +3447,17 @@ function buildComp(container, func, prefix){
   function compCount(func){
     const sourceQ = (window.QBANK && typeof window.QBANK==='object') ? window.QBANK : QBANK;
     const Q = sourceQ && sourceQ[func] ? sourceQ[func] : null;
+    return Q ? (['A','B','C','D'].reduce((n,g)=>n+((Array.isArray(Q[g])?Q[g].length:0)),0)) : 0;
+  }
+  function compCountABC(func){
+    const sourceQ = (window.QBANK && typeof window.QBANK==='object') ? window.QBANK : QBANK;
+    const Q = sourceQ && sourceQ[func] ? sourceQ[func] : null;
     return Q ? (['A','B','C'].reduce((n,g)=>n+((Array.isArray(Q[g])?Q[g].length:0)),0)) : 0;
+  }
+  function compCountD(func){
+    const sourceQ = (window.QBANK && typeof window.QBANK==='object') ? window.QBANK : QBANK;
+    const Q = sourceQ && sourceQ[func] ? sourceQ[func] : null;
+    return Q && Array.isArray(Q.D) ? Q.D.length : 0;
   }
   function pesosTema(func){
     const p=PESOS_FUNCAO[func]||{A:10,B:10,C:10};
@@ -3303,9 +3477,11 @@ function buildComp(container, func, prefix){
 
 
   document.querySelector('#btnSaveAuto').onclick=()=>{
-    const func=document.querySelector('#autoFunc').value; const cnt=compCount(func);
+    const func=document.querySelector('#autoFunc').value;
+    const cnt=compCount(func); // A+B+C+D todos somam
     const notas=Array.from({length:cnt},(_,i)=> +document.querySelector(`#a_${i}`).value );
     const d_auto=calcD(notas,func);
+    // Salvar notas do eixo D separadamente
     AUTO = safeArray(AUTO).filter(x=>x.nome!==USER.nome);
     const novoRegistro = {ts:now(),nome:USER.nome,sigla:USER.sigla,
   func,comp:notas,obs:document.querySelector('#autoObs').value,d_auto};
@@ -3430,7 +3606,7 @@ function addAIHistory(nome, registro){
     save('nb_lider',LIDER);
 
     // Registra histórico AI (pontos competência *3, potencial *10, total até 60)
-    const Q=QBANK[func]||{A:[],B:[],C:[]};
+    const Q=QBANK[func]||{A:[],B:[],C:[],D:[]};
     const aLen=(Q.A||[]).length, bLen=(Q.B||[]).length;
     const mA=media(notas.slice(0,aLen)), mB=media(notas.slice(aLen,aLen+bLen)), mC=media(notas.slice(aLen+bLen));
     const pesos=PESOS_FUNCAO[func]||{A:10,B:10,C:10}; const tot=(pesos.A+pesos.B+pesos.C)||1;
@@ -3869,10 +4045,32 @@ const applyFilters=(list)=>{ try{
   const potA  = A ? (Array.isArray(A.pot)?A.pot:[]) : null;
   const potE  = E ? (Array.isArray(E.pot)?E.pot:[]) : null;
 
-  // Pontos brutos (0–30) normalizados
-  let ptsCompL = compL ? norm30(compL) : null;
-  let ptsCompA = compA ? norm30(compA) : null;
-  let ptsCompE = compE ? norm30(compE) : null;
+  // Calcular split A/B/C vs D para aplicar peso 70%/30%
+  function norm30wD(arr, funcKey){
+    if(!arr || !arr.length) return null;
+    var srcQ = (window.QBANK && typeof window.QBANK==='object') ? window.QBANK : (window.QBANK_DEFAULT||{});
+    var Q = (srcQ && srcQ[funcKey]) ? srcQ[funcKey] : null;
+    var abcLen = Q ? (['A','B','C'].reduce(function(n,g){ return n+((Array.isArray(Q[g])?Q[g].length:0)); },0)) : arr.length;
+    var dLen = Q && Array.isArray(Q.D) ? Q.D.length : 0;
+    // Se não há D ou tamanho não bate, usar norm30 só de A/B/C
+    if(!dLen || abcLen+dLen !== arr.length) return norm30(arr.slice(0, abcLen) || arr);
+    var abcNotas = arr.slice(0, abcLen);
+    var dNotas   = arr.slice(abcLen);
+    // D só entra no cálculo se foi efetivamente preenchido (alguma nota > 0)
+    var dPreenchido = dNotas.some(function(n){ return n > 0; });
+    if(!dPreenchido) return norm30(abcNotas);
+    var pABC = norm30(abcNotas);
+    var pD   = norm30(dNotas);
+    if(pABC === null) return pD;
+    if(pD === null)   return pABC;
+    return +(pABC * 0.80 + pD * 0.20).toFixed(2);
+  }
+
+  // Pontos brutos (0–30) — func ainda não resolvida, usar raw como fallback
+  var _funcKeyRaw = (L && L.func) || (A && A.func) || (E && E.func) || '';
+  let ptsCompL = compL ? norm30wD(compL, _funcKeyRaw) : null;
+  let ptsCompA = compA ? norm30wD(compA, _funcKeyRaw) : null;
+  let ptsCompE = compE ? norm30wD(compE, _funcKeyRaw) : null;
 
   // POTENCIAL: somente líder avalia (auto/equipe não entram)
   let ptsPotL  = potL ? norm30(potL) : null;
@@ -3923,6 +4121,12 @@ const applyFilters=(list)=>{ try{
     var funcRaw=(L && L.func) || (A && A.func) || (E && E.func) || ((window.__ROW_META_BY_NAME||{})[nome]?.func) || (Object.keys(QBANK)[0] || '');
     var func = resolveFuncKey(funcRaw);
     var pesos=PESOS_FUNCAO[func]||{A:10,B:10,C:10};
+    // Recalcular ptsComp com a func correta (para split D=30% correto)
+    if(func && func !== _funcKeyRaw){
+      if(compL) ptsCompL = norm30wD(compL, func);
+      if(compA) ptsCompA = norm30wD(compA, func);
+      if(compE) ptsCompE = norm30wD(compE, func);
+    }
     if(Array.isArray(QBANK)){
       try{
         var _m={};
@@ -3937,16 +4141,21 @@ const applyFilters=(list)=>{ try{
       if(typeof item === 'object') return { eixo:item.eixo || 'Pergunta', rotulo:item.rotulo || item.texto || item.label || item.pergunta || '' };
       return { eixo:'Pergunta', rotulo:String(item) };
     }
-    var Qraw=(sourceQ && sourceQ[func]) ? sourceQ[func] : {A:[],B:[],C:[]};
+    var Qraw=(sourceQ && sourceQ[func]) ? sourceQ[func] : {A:[],B:[],C:[],D:[]};
     var Q={
       A:(Array.isArray(Qraw.A)?Qraw.A:[]).map(__normQItem).filter(x=>x.rotulo),
       B:(Array.isArray(Qraw.B)?Qraw.B:[]).map(__normQItem).filter(x=>x.rotulo),
-      C:(Array.isArray(Qraw.C)?Qraw.C:[]).map(__normQItem).filter(x=>x.rotulo)
+      C:(Array.isArray(Qraw.C)?Qraw.C:[]).map(__normQItem).filter(x=>x.rotulo),
+      D:(Array.isArray(Qraw.D)?Qraw.D:[]).map(__normQItem).filter(x=>x.rotulo)
     };
     var aLen=(Q.A||[]).length, bLen=(Q.B||[]).length, cLen=(Q.C||[]).length;
     var base=L?L.comp:(A?A.comp:(E?E.comp:[]));
     var mA=mediaGrupo(base,0,aLen), mB=mediaGrupo(base,aLen,bLen), mC=mediaGrupo(base,aLen+bLen,cLen);
     var sA=+((mA/3)*pesos.A).toFixed(2), sB=+((mB/3)*pesos.B).toFixed(2), sC=+((mC/3)*pesos.C).toFixed(2);
+    // Média do eixo D (comportamental)
+    var dLen=(Q.D||[]).length;
+    var mD = dLen ? mediaGrupo(base, aLen+bLen+cLen, dLen) : null;
+    var sD = mD !== null ? +((mD/3)*(pesos.D||10)).toFixed(2) : null; // escala 0-3
     // 🔧 Pontos finais (0–30 / 0–30 / 0–60) com pesos dinâmicos
     var pontos = +ptsComp.toFixed(2);
     var pontosPot = +ptsPot.toFixed(2);
@@ -3958,9 +4167,9 @@ const applyFilters=(list)=>{ try{
 // =========================
 function _lvl30(x){
   x = Number(x||0);
-  if (x <= 10)   return 0;  // Baixo      (≤33%)
-  if (x <= 22.5) return 1;  // Médio      (33–75%)
-  return 2;                  // Alto       (>75%)
+  if (x <= 10) return 0;  // Baixo  (≤33%)
+  if (x <= 24) return 1;  // Médio  (33–80%)
+  return 2;                // Alto   (>80%)
 }
 var nbCol = _lvl30(pontos);      // Desempenho (X)
 var nbRow = _lvl30(pontosPot);   // Potencial (Y)
@@ -3977,6 +4186,8 @@ if(nbQuadrante === 9 && !(pontos > 25.5 && pontosPot > 25.5)){
   nbCol = _lvl30(pontos);
   nbRow = _lvl30(pontosPot);
 }
+
+
 
 var NB_MAP = {
   1:{
@@ -4160,7 +4371,7 @@ var nineBoxHtml = `
     var dt = (L && L.ts) || (A && A.ts) || (E && E.ts) || ((window.__ROW_META_BY_NAME||{})[nome]?.ts) || '';
     var dtFmt = dt ? new Date(dt).toLocaleDateString() : '—';
 
-    function linha(g,idx,t){ var gi=g==='A'?0:(g==='B'?aLen:aLen+bLen), pos=gi+idx;
+    function linha(g,idx,t,offset){ var gi = (offset!=null) ? offset : (g==='A'?0:(g==='B'?aLen:aLen+bLen)), pos=gi+idx;
       var vL = (L && Array.isArray(L.comp) && L.comp[pos]!=null) ? L.comp[pos] : null;
       var vA = (A && Array.isArray(A.comp) && A.comp[pos]!=null) ? A.comp[pos] : null;
       var vE = (E && Array.isArray(E.comp) && E.comp[pos]!=null) ? E.comp[pos] : null;
@@ -4168,7 +4379,7 @@ var nineBoxHtml = `
       var sA = (vA!=null ? String(vA) : '—');
       var sE = (vE!=null ? String(vE) : '—');
       return `<tr><td>${g}</td><td>${idx+1}</td><td>${t}</td><td class="status">${sL}</td><td class="status">${sA}</td><td class="status">${sE}</td></tr>`; }
-    var linhas=''; (Q.A||[]).forEach((it,i)=>linhas+=linha('A',i,it.rotulo)); (Q.B||[]).forEach((it,i)=>linhas+=linha('B',i,it.rotulo)); (Q.C||[]).forEach((it,i)=>linhas+=linha('C',i,it.rotulo));
+    var linhas=''; (Q.A||[]).forEach((it,i)=>linhas+=linha('A',i,it.rotulo)); (Q.B||[]).forEach((it,i)=>linhas+=linha('B',i,it.rotulo)); (Q.C||[]).forEach((it,i)=>linhas+=linha('C',i,it.rotulo)); if((Q.D||[]).length){ linhas+='<tr><td colspan="5" style="padding:6px 10px;background:#F5F4F1;font-size:11px;font-weight:600;color:#2F4858;letter-spacing:.06em;text-transform:uppercase;">D — Indicadores Comportamentais</td></tr>'; var abcOff=(Q.A||[]).length+(Q.B||[]).length+(Q.C||[]).length; (Q.D||[]).forEach((it,i)=>linhas+=linha('D',i,it.rotulo||it.eixo||it,abcOff)); }
     var potRows='';
     var potLabels = ['Conduta','Compreensão Interpessoal','Capacidade de Progressão','Maturidade Emocional','Flexibilidade / Adaptabilidade'];
     potLabels.forEach((t,i)=>{
@@ -4244,8 +4455,9 @@ var nineBoxHtml = `
             <tbody>
               <tr><td><span class="tag a">A Entrega Jurídica</span></td><td>${pesos.A}</td><td>${sA}</td></tr>
               <tr><td><span class="tag b">B 
-Geração de Negócio</span></td><td>${pesos.B}</td><td>${sB}</td></tr>
+Visão do Negócio</span></td><td>${pesos.B}</td><td>${sB}</td></tr>
               <tr><td><span class="tag c">C Experiência do Cliente</span></td><td>${pesos.C}</td><td>${sC}</td></tr>
+              ${sD !== null ? '<tr><td><span class="tag d" style="background:#6B4F9E;">D Comportamental</span></td><td>'+(pesos.D||10)+'</td><td>'+sD+'</td></tr>' : ''}
             </tbody>
           </table>
         </div>
@@ -4306,9 +4518,25 @@ Geração de Negócio</span></td><td>${pesos.B}</td><td>${sB}</td></tr>
           var s = arr.reduce((a,b)=>a+(Number(b)||0),0);
           return (s/(3*arr.length))*30;
         }
-        var ptsCompL = L ? norm30(L.comp) : null;
-        var ptsCompA = A ? norm30(A.comp) : null;
-        var ptsCompE = E ? norm30(E.comp) : null;
+        // Usar norm30wD se disponível (respeita peso D=20% e ignora D=zeros)
+        var _fk = (L&&L.func)||(A&&A.func)||(E&&E.func)||'';
+        function _norm30wD(arr){
+          if(!arr||!arr.length) return null;
+          var srcQ=(window.QBANK&&typeof window.QBANK==='object')?window.QBANK:(window.QBANK_DEFAULT||{});
+          var Q=srcQ&&srcQ[_fk]?srcQ[_fk]:null;
+          var abcLen=Q?(['A','B','C'].reduce(function(n,g){return n+((Array.isArray(Q[g])?Q[g].length:0));},0)):arr.length;
+          var dLen=Q&&Array.isArray(Q.D)?Q.D.length:0;
+          if(!dLen||abcLen+dLen!==arr.length) return norm30(arr.slice(0,abcLen)||arr);
+          var abcN=arr.slice(0,abcLen), dN=arr.slice(abcLen);
+          var dOk=dN.some(function(n){return n>0;});
+          if(!dOk) return norm30(abcN);
+          var pA=norm30(abcN), pD=norm30(dN);
+          if(pA===null) return pD; if(pD===null) return pA;
+          return +(pA*0.80+pD*0.20).toFixed(2);
+        }
+        var ptsCompL = L ? _norm30wD(L.comp) : null;
+        var ptsCompA = A ? _norm30wD(A.comp) : null;
+        var ptsCompE = E ? _norm30wD(E.comp) : null;
         var ptsPotL  = L ? norm30(L.pot)  : null;
 
         var avalSigla = (A && A.sigla) ? String(A.sigla) : ((L && L.avaliado_sigla) ? String(L.avaliado_sigla) : "");
@@ -5622,21 +5850,27 @@ document.addEventListener('click', function(e){
 
     // 4) Cálculo de pontos por grupo A, B, C
     function calcGrupos(reg, func){
-      if(!reg) return {mA:null,mB:null,mC:null,pot:null,comp:null,total:null};
+      if(!reg) return {mA:null,mB:null,mC:null,mD:null,pot:null,comp:null,total:null};
       const notas = safeArr(reg.comp).map(x=>+x);
-      const Q = (qbank[func])||{A:[],B:[],C:[]};
-      const aLen=(Q.A||[]).length, bLen=(Q.B||[]).length;
-      const P = (pesosMap[func])||{A:10,B:10,C:10};
+      const Q = (qbank[func])||{A:[],B:[],C:[],D:[]};
+      const aLen=(Q.A||[]).length, bLen=(Q.B||[]).length, cLen=(Q.C||[]).length, dLen=(Q.D||[]).length;
+      const P = (pesosMap[func])||{A:10,B:10,C:10,D:10};
+      const abcNotas = notas.slice(0, aLen+bLen+cLen);
+      const dNotas   = notas.slice(aLen+bLen+cLen, aLen+bLen+cLen+dLen);
+      const dPreench = dNotas.some(n=>n>0);
       const tot=(+P.A + +P.B + +P.C)||1;
       const mA = avg(notas.slice(0,aLen));
       const mB = avg(notas.slice(aLen,aLen+bLen));
-      const mC = avg(notas.slice(aLen+bLen));
+      const mC = avg(notas.slice(aLen+bLen,aLen+bLen+cLen));
+      const mD = dPreench ? avg(dNotas) : null;
       const mAv=mA||0, mBv=mB||0, mCv=mC||0;
-      const comp = +(((mAv/3)*P.A+(mBv/3)*P.B+(mCv/3)*P.C)*30/tot).toFixed(2);
+      const compABC = +(((mAv/3)*P.A+(mBv/3)*P.B+(mCv/3)*P.C)*30/tot).toFixed(2);
+      const compD   = mD!=null ? +((mD/3)*30).toFixed(2) : null;
+      const comp    = compD!=null ? +(compABC*0.80 + compD*0.20).toFixed(2) : compABC;
       const potRaw = reg.p_lider!=null ? +reg.p_lider : (reg.pot!=null?+reg.pot:NaN);
       const pot = isNaN(potRaw)?null:+Math.min(30,Math.max(0,potRaw*10)).toFixed(2);
       const total = pot!==null ? +(comp+(pot)).toFixed(2) : null;
-      return {mA,mB,mC,comp,pot,total};
+      return {mA,mB,mC,mD,comp,pot,total};
     }
 
     function nbQuad(comp,pot){
@@ -5653,7 +5887,7 @@ document.addEventListener('click', function(e){
     // ABA 1: Consolidado Geral
     // Nome • Equipe • Nota Comp • Nota Pot • Total • Quadrante
     // ============================================================
-    const rowsGeral = [['Nome','Sigla','Função','Equipe','Nível','Step','Pontos Competências (0-30)','Pontos Potencial (0-30)','Total (0-60)','Quadrante','Posição 9-Box']];
+    const rowsGeral = [['Nome','Sigla','Função','Equipe','Nível','Step','Pontos Competências (0-30)','Média A','Média B','Média C','Média D (Comportamental)','Pontos Potencial (0-30)','Total (0-60)','Quadrante','Posição 9-Box']];
     colabs.forEach(c=>{
       const k=getKey(c);
       const L=lastLider[k]||null;
@@ -5662,7 +5896,10 @@ document.addEventListener('click', function(e){
       rowsGeral.push([
         c.nome, c.sigla, c.func, c.equipe,
         c.nivel||'', c.step||'',
-        g.comp!==null?g.comp:'', g.pot!==null?g.pot:'',
+        g.comp!==null?g.comp:'',
+        g.mA!==null?g.mA:'', g.mB!==null?g.mB:'', g.mC!==null?g.mC:'',
+        g.mD!==null?g.mD:'',
+        g.pot!==null?g.pot:'',
         g.total!==null?g.total:'',
         q?'Q'+q:'', q?NB_TITULO[q]||'':''
       ]);
@@ -5672,7 +5909,7 @@ document.addEventListener('click', function(e){
     // ABA 2: Média por A, B, C
     // Nome • Equipe • Média A • Média B • Média C
     // ============================================================
-    const rowsABC = [['Nome','Sigla','Função','Equipe','Nível','Step','Média Grupo A (Líder)','Média Grupo B (Líder)','Média Grupo C (Líder)','Média Grupo A (Auto)','Média Grupo B (Auto)','Média Grupo C (Auto)']];
+    const rowsABC = [['Nome','Sigla','Função','Equipe','Nível','Step','Média Grupo A (Líder)','Média Grupo B (Líder)','Média Grupo C (Líder)','Média D (Líder)','Média Grupo A (Auto)','Média Grupo B (Auto)','Média Grupo C (Auto)']];
     colabs.forEach(c=>{
       const k=getKey(c);
       const L=lastLider[k]||null;
@@ -5682,7 +5919,7 @@ document.addEventListener('click', function(e){
       rowsABC.push([
         c.nome, c.sigla, c.func, c.equipe,
         c.nivel||'', c.step||'',
-        gL.mA!==null?gL.mA:'', gL.mB!==null?gL.mB:'', gL.mC!==null?gL.mC:'',
+        gL.mA!==null?gL.mA:'', gL.mB!==null?gL.mB:'', gL.mC!==null?gL.mC:'', gL.mD!==null?gL.mD:'',
         gA.mA!==null?gA.mA:'', gA.mB!==null?gA.mB:'', gA.mC!==null?gA.mC:''
       ]);
     });
@@ -5729,7 +5966,7 @@ document.addEventListener('click', function(e){
     const wb = XLSX.utils.book_new();
 
     const ws1 = XLSX.utils.aoa_to_sheet(rowsGeral);
-    ws1['!cols']=[{wch:28},{wch:10},{wch:24},{wch:20},{wch:8},{wch:8},{wch:22},{wch:22},{wch:14},{wch:10},{wch:26}];
+    ws1['!cols']=[{wch:28},{wch:10},{wch:24},{wch:20},{wch:8},{wch:8},{wch:22},{wch:12},{wch:12},{wch:12},{wch:16},{wch:22},{wch:14},{wch:10},{wch:26}];
     XLSX.utils.book_append_sheet(wb, ws1, 'Consolidado Geral');
 
     const ws2 = XLSX.utils.aoa_to_sheet(rowsABC);
@@ -5814,7 +6051,7 @@ document.addEventListener('click', async function(e){
       const docRef = doc(window.db, "aia_config", "pesos");
       const snap = await getDoc(docRef);
       if (snap.exists()) {
-        window.PESOS_FUNCAO = snap.data();
+        window.PESOS_FUNCAO = snap.data()?.pesos || snap.data() || {};
 // [FIRESTORE-ONLY DISABLED]         localStorage.setItem('nb_pesos_funcao', JSON.stringify(window.PESOS_FUNCAO));
         console.log("✅ Pesos recarregados do Firestore:", window.PESOS_FUNCAO);
       } else {
@@ -5849,11 +6086,18 @@ document.addEventListener('click', async function(e){
       const novo = {};
       rows.forEach(r=>{
         const func = r.children[0].textContent.trim();
-        const A = +r.children[1].querySelector('input').value||0;
-        const B = +r.children[2].querySelector('input').value||0;
-        const C = +r.children[3].querySelector('input').value||0;
-        const equipe = !!r.children[4].querySelector('input').checked;
-        novo[func] = {A,B,C,equipe};
+        function getV(field, ci){
+          var el = r.querySelector('input[data-field="'+field+'"]');
+          if(el) return el;
+          return r.children[ci] ? r.children[ci].querySelector('input') : null;
+        }
+        var _A=getV('A',1), _B=getV('B',2), _C=getV('C',3), _D=getV('D',4), _Eq=getV('equipe',5);
+        const A = _A ? (+_A.value||0) : 0;
+        const B = _B ? (+_B.value||0) : 0;
+        const C = _C ? (+_C.value||0) : 0;
+        const D = _D ? (+_D.value||0) : 10;
+        const equipe = _Eq ? !!_Eq.checked : false;
+        novo[func] = {A,B,C,D,equipe};
       });
 
       // Salvar localmente (como antes)
@@ -5907,7 +6151,7 @@ document.addEventListener('click', async function(e){
 (function(){
   const TITULOS_GRUPO = {
     A: 'Entrega Jurídica',
-    B: 'Geração de Negócio',
+    B: 'Visão do Negócio',
     C: 'Experiência do Cliente'
   };
 
@@ -5921,10 +6165,12 @@ document.addEventListener('click', async function(e){
   }
 
   function getPesosAtual(){
-    const p = window.PESOS_FUNCAO && Object.keys(window.PESOS_FUNCAO).length
-      ? window.PESOS_FUNCAO
-      : (window.PESOS_PADRAO || {});
-    return clone(p);
+    // Mescla PESOS_PADRAO com PESOS_FUNCAO do Firestore:
+    // funções novas do padrão sempre aparecem, Firestore sobrescreve onde existir
+    const base = clone(window.PESOS_PADRAO || {});
+    const firestore = (window.PESOS_FUNCAO && Object.keys(window.PESOS_FUNCAO).length)
+      ? window.PESOS_FUNCAO : {};
+    return Object.assign(base, firestore);
   }
 
   function getQbankAtual(){
@@ -5960,10 +6206,10 @@ document.addEventListener('click', async function(e){
     const tab = document.querySelector('#tabPesos');
     if(!tab) return;
     const pesos = getPesosAtual();
-    tab.innerHTML = '<thead><tr><th>Função</th><th>A</th><th>B</th><th>C</th><th>Equipe?</th></tr></thead><tbody></tbody>';
+    tab.innerHTML = '<thead><tr><th>Função</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Equipe?</th></tr></thead><tbody></tbody>';
     const tb = tab.querySelector('tbody');
     Object.keys(pesos).forEach(func=>{
-      const cfg = pesos[func] || {A:0,B:0,C:0,equipe:false};
+      const cfg = pesos[func] || {A:0,B:0,C:0, D:10,equipe:false};
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${func}</td>
@@ -6484,22 +6730,38 @@ async function savePDIWithSnapshot(){
     return map[s] || (s||'');
   }
 
-  function render(list){
+  function render(list, showAll){
     var U = ui();
     if (!U.list) return;
-    U.list.innerHTML = '';
     if (!Array.isArray(list)) list = [];
+
+    // Filtrar: por padrão ocultar concluídas/canceladas
+    var statusOcultos = ['concluida','cancelada','nao_concluida'];
+    var listaCompleta = list;
+    var listaVis = showAll ? list : list.filter(function(it){ return statusOcultos.indexOf(it.status||'') === -1; });
+    var nOcultas = listaCompleta.length - listaVis.length;
 
     // Top resumo
     if (U.listTop){
-      var total = list.length;
-      var concl = list.filter(x=>x.status==='concluida').length;
+      var total = listaCompleta.length;
+      var concl = listaCompleta.filter(function(x){ return x.status==='concluida'; }).length;
+      var ocultaInfo = (!showAll && nOcultas > 0) ? ' &nbsp;·&nbsp; <span style="color:#8DADB5;cursor:pointer" id="btnMostrarConc">📋 ' + nOcultas + ' concluída(s) oculta(s) — clique para ver</span>' : '';
+      if(showAll && nOcultas >= 0){
+        ocultaInfo = ' &nbsp;·&nbsp; <span style="color:#8DADB5;cursor:pointer" id="btnOcultarConc">🔼 Ocultar concluídas</span>';
+      }
       U.listTop.innerHTML = '<div class="small muted" style="margin:6px 0 10px 0">'
-        + '<b>Metas:</b> ' + total + ' &nbsp; • &nbsp; <b>Concluídas:</b> ' + concl
-        + '</div>';
+        + '<b>Metas:</b> ' + total + ' &nbsp;·&nbsp; <b>Concluídas:</b> ' + concl
+        + ocultaInfo + '</div>';
+      // Conectar link mostrar/ocultar
+      var btnMostr = document.getElementById('btnMostrarConc');
+      if(btnMostr) btnMostr.onclick = function(){ render(listaCompleta, true); };
+      var btnOcult = document.getElementById('btnOcultarConc');
+      if(btnOcult) btnOcult.onclick = function(){ render(listaCompleta, false); };
     }
 
-    list.forEach(function(item, i){
+    U.list.innerHTML = '';
+    listaVis.forEach(function(item, i){
+      var _realIdx = listaCompleta.indexOf(item);
       var card = document.createElement('div');
       card.className = 'card';
       card.style.margin = '10px 0';
@@ -6513,7 +6775,7 @@ async function savePDIWithSnapshot(){
         + '    <div style="font-weight:700;margin-bottom:6px">' + escapeHtml(item.descricao||'') + '</div>'
         + '  </div>'
         + '  <div class="row" style="gap:8px;flex:0 0 auto;align-items:center">'
-        + '    <select class="select stat" data-index="'+i+'" style="min-width:180px">'
+        + '    <select class="select stat" data-index="'+_realIdx+'" style="min-width:180px">'
         + '      <option value="">Status...</option>'
         + '      <option value="planejada">Planejada</option>'
         + '      <option value="andamento">Em andamento</option>'
@@ -6521,12 +6783,12 @@ async function savePDIWithSnapshot(){
         + '      <option value="adiada">Adiada</option>'
         + '      <option value="cancelada">Cancelada</option>'
         + '    </select>'
-        + '    <button class="btn ghost" data-act="rm" data-i="'+i+'">remover</button>'
+        + '    <button class="btn ghost" data-act="rm" data-i="'+_realIdx+'">remover</button>'
         + '  </div>'
         + '</div>'
         + '<div style="margin-top:10px;display:grid;grid-template-columns:1fr;gap:8px">'
-        + '  <textarea class="input meta-okr" data-index="'+i+'" rows="2" placeholder="OKR (O + KR) desta meta">'+escapeHtml(item.okr||'')+'</textarea>'
-        + '  <textarea class="input meta-conc" data-index="'+i+'" rows="2" placeholder="Conclusão desta meta (preencher ao concluir)">'+escapeHtml(item.conclusao||'')+'</textarea>'
+        + '  <textarea class="input meta-okr" data-index="'+_realIdx+'" rows="2" placeholder="OKR (O + KR) desta meta">'+escapeHtml(item.okr||'')+'</textarea>'
+        + '  <textarea class="input meta-conc" data-index="'+_realIdx+'" rows="2" placeholder="Conclusão desta meta (preencher ao concluir)">'+escapeHtml(item.conclusao||'')+'</textarea>'
         + '</div>';
 
       U.list.appendChild(card);
@@ -6614,7 +6876,7 @@ async function savePDIWithSnapshot(){
     }
   }
 
-  async function loadCurrent(){
+  async function loadCurrent(_showAll){
     var k = key();
     // tenta local
     try{
@@ -6632,7 +6894,7 @@ async function savePDIWithSnapshot(){
         var d = snap.data();
         if (d && Array.isArray(d.metas)){
           window._pdiMetas = d.metas.slice();
-          render(window._pdiMetas);
+          render(window._pdiMetas, _showAll);
           try{ localStorage.setItem(k, JSON.stringify(d)); }catch(_){}
           return true;
         }
@@ -6693,8 +6955,8 @@ async function savePDIWithSnapshot(){
 
     // Estado inicial
     window._pdiMetas = window._pdiMetas || [];
-    render(window._pdiMetas);
-    loadCurrent();
+    render(window._pdiMetas, false);
+    loadCurrent(false);
 
     U.add.addEventListener('click', function(){
       var desc = (U.desc.value || '').trim();
@@ -6733,7 +6995,7 @@ async function savePDIWithSnapshot(){
     U.save.addEventListener('click', save);
 
     U.load.addEventListener('click', async function(){
-      var ok = await loadCurrent();
+      var ok = await loadCurrent(true); // showAll=true — mostra incluindo concluídas
       if (!ok) await pickHistory();
     });
   }
@@ -7094,16 +7356,36 @@ window.renderCompletionStatus = function(containerId){
 <script>
 /* Conectar botões + Adicionar do PDI redesenhado */
 document.addEventListener('DOMContentLoaded', function(){
-  function wire(visId, origId){
+  function wireOKR(visId, cat, stateKey){
     var vis = document.getElementById(visId);
-    var orig = document.getElementById(origId);
-    if(vis && orig) vis.onclick = function(){ orig.click(); };
+    if(!vis) return;
+    vis.onclick = function(){
+      // Tentar via botão original primeiro
+      var orig = document.getElementById('btn_add_' + cat);
+      if(orig && orig.onclick){
+        orig.click();
+        return;
+      }
+      // Fallback direto: chamar a lógica do PDI
+      if(window._state && typeof window.renderCat === 'function'){
+        if(!window._state[stateKey]) window._state[stateKey] = [];
+        window._state[stateKey].push({o:'', krs:['','','']});
+        window.renderCat(cat);
+      } else {
+        // Tentar novamente em 300ms (PDI ainda carregando)
+        setTimeout(function(){
+          var orig2 = document.getElementById('btn_add_' + cat);
+          if(orig2 && orig2.onclick) orig2.click();
+        }, 300);
+      }
+    };
   }
   setTimeout(function(){
-    wire('btn_add_at_vis','btn_add_at');
-    wire('btn_add_pf_vis','btn_add_pf');
-    wire('btn_add_su_vis','btn_add_su');
-  }, 500);
+    wireOKR('btn_add_at_vis',   'at',   'entrega jurídica');
+    wireOKR('btn_add_pf_vis',   'pf',   'visão do negócio');
+    wireOKR('btn_add_su_vis',   'su',   'experiência do cliente');
+    wireOKR('btn_add_comp_vis', 'comp', 'comportamental');
+  }, 800);
 });
 </script>
 </body>
